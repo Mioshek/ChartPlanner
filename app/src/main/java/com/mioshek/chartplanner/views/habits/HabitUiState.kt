@@ -1,4 +1,4 @@
-package com.mioshek.chartplanner.data
+package com.mioshek.chartplanner.views.habits
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

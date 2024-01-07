@@ -22,7 +22,6 @@ import androidx.navigation.compose.rememberNavController
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import com.mioshek.chartplanner.views.Navigation
 import com.mioshek.chartplanner.views.bars.BottomNavigationBar
-import java.util.prefs.Preferences
 
 class MainActivity : ComponentActivity() {
 

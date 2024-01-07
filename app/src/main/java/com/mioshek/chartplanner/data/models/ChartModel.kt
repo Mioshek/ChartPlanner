@@ -3,7 +3,8 @@ package com.mioshek.chartplanner.data.models
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 
-data class GraphAppearance(
+data class ChartModel(
+    val chartDescription: ChartDescription,
     val lineColor: Color,
     val graphAxisColor: Color,
     val lineThickness: Dp,
@@ -14,4 +15,14 @@ data class GraphAppearance(
     val backgroundColor: Color,
     val axisFontSize: Int,
     val axisFontColor: Color
+)
+
+data class ChartDescription(
+    val chartName: String,
+    val chartNameSize: Dp,
+    val chartNameColor: Color,
+    val xAxisName: String,
+    val yAxisName: String,
+    val axesNamesSize: Dp,
+    val axesNamesColor: Color
 )
