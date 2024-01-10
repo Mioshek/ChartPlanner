@@ -20,11 +20,11 @@ import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 
 
-sealed class NavigationItem(var route: String, var icon: Int, var title: String) {
-    object Chart : NavigationItem("chart", R.drawable.chart_line, "Chart")
-    object Habits : NavigationItem("habits", R.drawable.calendar_check, "Habits")
+sealed class BottomNavigationItem(var route: String, var icon: Int, var title: String) {
+    object Chart : BottomNavigationItem("chart", R.drawable.chart_line, "Chart")
+    object Habits : BottomNavigationItem("habits", R.drawable.calendar_check, "Habits")
 
-    object Settings: NavigationItem( "settings", R.drawable.settings, "Settings")
+    object Settings: BottomNavigationItem( "settings", R.drawable.settings, "Settings")
 }
 
 
@@ -34,9 +34,9 @@ fun BottomNavigationBar(
     modifier: Modifier = Modifier
 ) {
     val items = listOf(
-        NavigationItem.Chart,
-        NavigationItem.Habits,
-        NavigationItem.Settings
+        BottomNavigationItem.Chart,
+        BottomNavigationItem.Habits,
+        BottomNavigationItem.Settings
     )
 
     NavigationBar(
@@ -49,6 +49,7 @@ fun BottomNavigationBar(
         val currentRoute = navBackStackEntry?.destination?.route
 
         items.forEachIndexed{ index, item ->
+
             NavigationBarItem(
                 icon = {
                     Icon(
@@ -84,7 +85,7 @@ fun BottomNavigationBar(
                         // Restore state when reselecting a previously selected item
                         restoreState = true
                     }
-                }
+                },
             )
         }
     }

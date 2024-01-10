@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun CreateNewHabit(modifier: Modifier = Modifier){
+fun EditHabit(id: Int ,modifier: Modifier = Modifier){
     Box(modifier = modifier.fillMaxSize()){
         Text("new Habit")
     }
