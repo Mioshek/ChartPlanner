@@ -25,7 +25,7 @@ class ListHabitsViewModel: ViewModel() {
             val length = newHabitList.size
             for (i in id until length){
                 val habit = newHabitList[i]
-                val newHabit = HabitUiState(habit.id?.minus(1), habit.name, habit.description, habit.completed, habit.intervalDays, habit.nextOccurring)
+                val newHabit = HabitUiState(habit.id?.minus(1), habit.name, habit.description, habit.completed, habit.nextOccurring, habit.intervalDays)
                 newHabitList[i] = newHabit
             }
             currentState.copy(

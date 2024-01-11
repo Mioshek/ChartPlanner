@@ -27,7 +27,7 @@ android {
         }
         debug {
             renderscriptOptimLevel 3
-            debuggable false
+            debuggable true
         }
     }
     compileOptions {

@@ -16,20 +16,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 
 
 sealed class BottomNavigationItem(var route: String, var icon: Int, var title: String) {
     object Chart : BottomNavigationItem("chart", R.drawable.chart_line, "Chart")
-    object Habits : BottomNavigationItem("habits", R.drawable.calendar_check, "Habits")
+    object Habits : BottomNavigationItem("habit", R.drawable.calendar_check, "Habits")
 
     object Settings: BottomNavigationItem( "settings", R.drawable.settings, "Settings")
 }
 
 
 @Composable
-fun BottomNavigationBar(
+fun BottomBar(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
@@ -97,6 +98,7 @@ fun BottomNavigationBar(
 @Composable
 fun BottomNavigationBarPreview() {
     ChartPlannerTheme {
-//
+        val nav = rememberNavController()
+        BottomBar(nav)
     }
 }

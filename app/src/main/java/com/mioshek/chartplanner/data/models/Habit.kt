@@ -16,6 +16,7 @@ data class Habit(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "habit_id") val hid: Int,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "completed") val completed: Boolean,
     @ColumnInfo(name = "date") val date: Calendar,
     @ColumnInfo(name = "interval_days") val intervalDays: Int
 )

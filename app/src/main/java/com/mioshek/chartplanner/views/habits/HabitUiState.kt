@@ -1,5 +1,9 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.mioshek.chartplanner.views.habits
 
+import android.util.Log
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,11 +13,12 @@ import java.util.Date
 
 data class HabitUiState(
     val id: Int? = null,
-    val name: String = "",
-    val description: String? = null,
+    val name: String = "Name",
+    val description: String? = "Description",
     val completed: Boolean = false,
-    val intervalDays: Int? = null, // 1 means everyday
-    val nextOccurring: Date? = null
+    val nextOccurring: Date? = null,
+    val intervalDays: Int? = null, // 1 means everyday, null means once
+
 )
 
 
@@ -23,16 +28,36 @@ class HabitViewModel: ViewModel() {
 
     private var logCallbackHabit: LogCallbackHabit? = null
 
-    fun newHabit(newHabit: HabitUiState){ //same usage as edit habit
+    fun updateState(fieldId: Int, fieldValue: Any?){ //same usage as edit habit
         _habitUiState.update { currentState ->
-            currentState.copy(
-                id = newHabit.id,
-                name = newHabit.name,
-                description = newHabit.description,
-                completed = newHabit.completed,
-                intervalDays = newHabit.intervalDays,
-                nextOccurring = newHabit.nextOccurring
-            )
+            when(fieldId){
+                2 -> {
+                    currentState.copy(name = fieldValue.toString())
+                }
+
+                3 -> {
+                    var actualValue = fieldValue
+                    actualValue = if (fieldValue == null){
+                        ""
+                    } else{
+                        actualValue.toString()
+                    }
+                    currentState.copy(description = actualValue)
+                }
+
+                5 -> {
+                    currentState.copy(nextOccurring = fieldValue as Date?)
+                }
+
+                6 -> {
+                    currentState.copy(intervalDays = fieldValue as Int?)
+                }
+
+                else -> {
+                    Log.d("HabitUiStateError","FieldId: ${fieldId}, FieldValue: {$fieldValue}")
+                    currentState.copy()
+                }
+            }
         }
     }
 }

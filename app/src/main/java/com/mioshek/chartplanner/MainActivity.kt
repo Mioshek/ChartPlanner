@@ -21,7 +21,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import com.mioshek.chartplanner.views.Navigation
-import com.mioshek.chartplanner.views.bars.BottomNavigationBar
+import com.mioshek.chartplanner.views.bars.BottomBar
 
 class MainActivity : ComponentActivity() {
 
@@ -64,7 +64,7 @@ fun Main(modifier: Modifier = Modifier) {
         },
 
         bottomBar = {
-            BottomNavigationBar(navController)
+            BottomBar(navController)
         },
 
         containerColor = MaterialTheme.colorScheme.surface
