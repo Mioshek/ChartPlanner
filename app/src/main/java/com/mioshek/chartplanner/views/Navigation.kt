@@ -1,8 +1,6 @@
 package com.mioshek.chartplanner.views
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -13,14 +11,12 @@ import androidx.navigation.navigation
 import com.mioshek.chartplanner.views.bars.BottomNavigationItem
 import com.mioshek.chartplanner.views.charts.DrawGraph
 import com.mioshek.chartplanner.views.habits.CalendarPicker
-import com.mioshek.chartplanner.views.habits.EditHabit
 import com.mioshek.chartplanner.views.habits.ListHabits
 import com.mioshek.chartplanner.views.habits.NewHabit
 import com.mioshek.chartplanner.views.settings.Settings
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Navigation(navController: NavHostController) {
+fun ChartPlannerNavigation(navController: NavHostController) {
 
     NavHost(navController, startDestination = "main") {
         navigation(
@@ -45,16 +41,19 @@ fun Navigation(navController: NavHostController) {
             route = "habits"
         ){
             composable(
-                "habits/new"
-            ){
-                NewHabit(navController)
-            }
-
-            composable(
                 "habits/{hid}",
                 arguments = listOf(navArgument("hid") {type = NavType.IntType})
             ){ navBackStackEntry ->
-                EditHabit(navBackStackEntry.arguments?.getInt("hid"))
+                NewHabit(
+                    navController,
+                    navBackStackEntry.arguments?.getInt("hid")
+                )
+            }
+
+            composable(
+                "habits/new"
+            ){
+                NewHabit(navController, null)
             }
 
             composable(
