@@ -2,50 +2,32 @@ package com.mioshek.chartplanner.data.models.habits
 
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository that provides insert, update, delete, and retrieve of [Habit] from a given data source.
- */
+
 interface HabitsRepository {
-    /**
-     * Retrieve all the items from the the given data source.
-     */
     fun getAllHabitsStream(): Flow<List<Habit>>
 
-    /**
-     * Retrieve an item from the given data source that matches with the [id].
-     */
     fun getHabitStream(id: Int): Flow<Habit?>
 
-    /**
-     * Insert item in the data source
-     */
-    suspend fun insertHabit(item: Habit)
+    suspend fun insert(habit: Habit)
 
-    /**
-     * Delete item from the data source
-     */
-    suspend fun deleteHabit(h_id: Int)
+    suspend fun delete(h_id: Int)
 
-    /**
-     * Update item in the data source
-     */
-    suspend fun updateHabit(item: Habit)
+    suspend fun update(habit: Habit)
 }
 
-class OfflineHabitsRepository(private val itemDao: HabitDao) : HabitsRepository {
-    override fun getAllHabitsStream(): Flow<List<Habit>> = itemDao.getAllHabits()
+class OfflineHabitsRepository(private val habitDao: HabitDao) : HabitsRepository {
+    override fun getAllHabitsStream(): Flow<List<Habit>> = habitDao.getAll()
 
-    override fun getHabitStream(id: Int): Flow<Habit?> = itemDao.getHabit(id)
+    override fun getHabitStream(id: Int): Flow<Habit?> = habitDao.get(id)
 
-    override suspend fun insertHabit(habit: Habit) = itemDao.insertHabit(habit)
+    override suspend fun insert(habit: Habit) = habitDao.insert(habit)
 
-    override suspend fun deleteHabit(h_id: Int) = itemDao.delete(h_id)
+    override suspend fun delete(h_id: Int) = habitDao.delete(h_id)
 
-    override suspend fun updateHabit(habit: Habit) = itemDao.updateHabit(
+    override suspend fun update(habit: Habit) = habitDao.update(
         habit.hid,
         habit.name,
         habit.description,
-        habit.completed,
         habit.date,
         habit.intervalDays
     )

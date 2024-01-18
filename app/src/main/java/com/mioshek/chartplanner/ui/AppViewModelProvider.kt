@@ -1,13 +1,12 @@
 package com.mioshek.chartplanner.ui
 
-import android.app.Application
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mioshek.chartplanner.HabitApplication
-import com.mioshek.chartplanner.data.models.habits.HabitsRepository
+import com.mioshek.chartplanner.views.charts.ChartViewModel
 import com.mioshek.chartplanner.views.habits.HabitViewModel
 import com.mioshek.chartplanner.views.habits.ListHabitsViewModel
 
@@ -16,14 +15,21 @@ object AppViewModelProvider {
         initializer {
             ListHabitsViewModel(
                 this.createSavedStateHandle(),
-                habitApplication().container.itemsRepository
+                habitApplication().container.habitsRepository
             )
         }
 
         initializer {
             HabitViewModel(
                 this.createSavedStateHandle(),
-                habitApplication().container.itemsRepository
+                habitApplication().container.habitsRepository
+            )
+        }
+
+        initializer {
+            ChartViewModel(
+                this.createSavedStateHandle(),
+                habitApplication().container.habitsRepository
             )
         }
     }

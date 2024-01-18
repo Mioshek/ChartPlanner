@@ -1,19 +1,15 @@
 package com.mioshek.chartplanner.views.habits
 
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import kotlin.coroutines.coroutineContext
 
 data class HabitUiState(
     val id: Int? = null,
@@ -29,7 +25,6 @@ fun HabitUiState.toHabit(): Habit {
         return Habit(
             name = name,
             description = description!!,
-            completed = completed,
             date =  date ?: System.currentTimeMillis(),
             intervalDays = intervalDays ?: 0
         )
@@ -38,7 +33,6 @@ fun HabitUiState.toHabit(): Habit {
         hid = id,
         name = name,
         description = description!!,
-        completed = completed,
         date =  date ?: System.currentTimeMillis(),
         intervalDays = intervalDays ?: 0
     )
@@ -115,7 +109,7 @@ class HabitViewModel(
                     id = updatedHabit.hid,
                     name = updatedHabit.name,
                     description = updatedHabit.description,
-                    completed = updatedHabit.completed,
+//                    completed = updatedHabit.completed,
                     date = updatedHabit.date,
                     intervalDays = updatedHabit.intervalDays
                 )
@@ -124,11 +118,11 @@ class HabitViewModel(
     }
 
     suspend fun insertHabitDb(newHabit: Habit){
-        habitsRepository.insertHabit(newHabit)
+        habitsRepository.insert(newHabit)
     }
 
     suspend fun updateHabitDb(newHabit: Habit){
-        habitsRepository.updateHabit(newHabit)
+        habitsRepository.update(newHabit)
     }
 
     suspend fun printHabitById(id: Int): Habit? {

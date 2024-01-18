@@ -48,7 +48,7 @@ fun ListHabits(
     Column(
         modifier
             .fillMaxSize()
-            .padding(top = 10.dp, start = 20.dp, end = 20.dp),
+            .padding(top = 20.dp, start = 20.dp, end = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ){
         habitsViewModel.updateListUi()

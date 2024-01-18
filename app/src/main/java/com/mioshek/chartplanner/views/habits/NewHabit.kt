@@ -4,7 +4,12 @@ import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,15 +37,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.compose.rememberNavController
 import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.numberpicker.CustomNumberPicker
@@ -64,6 +73,10 @@ fun NewHabit(
     val habit = habitViewModel.habitUiState.collectAsState()
     val dateFormat = SimpleDateFormat("dd MMM yyyy")
     var updatedFromDb = navController.previousBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("isInsertedToDb")?.value ?: true
+    val focusManager = LocalFocusManager.current
+    val source = remember{ MutableInteractionSource()}
+    var isSourcePressed by remember { mutableStateOf(false) }// second argument -> was clicked?
+
     if (habitId != null && !updatedFromDb!!){
         coroutineScope.launch {
             habitViewModel.getHabitFromDb(habitId)
@@ -75,6 +88,9 @@ fun NewHabit(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
+            .clickable {
+                focusManager.clearFocus()
+            }
     ){
         val options = listOf("Don't Repeat",1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30)
         val newHabitUiState by habitViewModel.habitUiState.collectAsState()
@@ -84,13 +100,15 @@ fun NewHabit(
             verticalArrangement = Arrangement.Center,
             modifier = modifier
                 .fillMaxSize()
-                .padding(start = 50.dp, end = 50.dp)
+                .padding(start = 40.dp, end = 40.dp)
         ){
             OutlinedTextField(
                 habit.value.name,
                 placeholder = {Text("Name")},
                 onValueChange = {habitViewModel.updateState(it, 2)},
-                modifier = modifier.padding(bottom = 10.dp).fillMaxWidth()
+                modifier = modifier
+                    .padding(bottom = 10.dp)
+                    .fillMaxWidth()
             )
 
             // Changes in date listener
@@ -106,17 +124,22 @@ fun NewHabit(
             Row(
                 modifier = modifier.fillMaxWidth()
             ){
-                var displayedNextOccurring = if (habit.value.date == null) "Starting Date" else dateFormat.format(habit.value.date)
+                var displayedNextOccurring = if (habit.value.date == null) "" else dateFormat.format(habit.value.date)
                 OutlinedTextField(
-                    value = "",
+                    value = displayedNextOccurring,
                     onValueChange = {},
                     readOnly = true,
                     modifier = modifier
                         .padding(bottom = 10.dp, end = 10.dp)
                         .fillMaxWidth()
                         .weight(3f),
-                    placeholder = { Text(text = displayedNextOccurring) }
+                    placeholder = { Text("Starting Date") },
+                    interactionSource = source
                 )
+                if (source.collectIsPressedAsState().value && !isSourcePressed && navController.currentDestination != NavDestination("habits/new/calendar")){
+                    isSourcePressed = true
+                    navController.navigate(route = "habits/new/calendar")
+                }
 
                 Button(
                     onClick = {
@@ -211,7 +234,6 @@ fun NewHabit(
     }
 }
 
-
 @SuppressLint("UnrememberedGetBackStackEntry")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -286,5 +308,4 @@ fun TimePickerPreview(){
         )
         timePicker.show()
     }
-
 }
