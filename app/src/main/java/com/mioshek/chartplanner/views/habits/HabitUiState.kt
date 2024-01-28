@@ -10,14 +10,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import java.sql.Date
 
 data class HabitUiState(
     val id: Int? = null,
     val name: String = "",
     val description: String? = "",
     val completed: Boolean = false,
-    val date: Long? = null,
-    val intervalDays: Int? = null, // 1 means everyday, null means once
+    val date: String? = null,
+    val intervalDays: Int? = null, // 1 means everyday, 0 means once
+    val selected: Boolean = false
 )
 
 fun HabitUiState.toHabit(): Habit {
@@ -25,15 +27,15 @@ fun HabitUiState.toHabit(): Habit {
         return Habit(
             name = name,
             description = description!!,
-            date =  date ?: System.currentTimeMillis(),
-            intervalDays = intervalDays ?: 0
+            date =  date!!,
+            intervalDays = intervalDays!!
         )
     }
     return Habit(
         hid = id,
         name = name,
         description = description!!,
-        date =  date ?: System.currentTimeMillis(),
+        date =  date!!,
         intervalDays = intervalDays ?: 0
     )
 }
@@ -49,7 +51,6 @@ class HabitViewModel(
     private var logCallbackListHabits: LogCallbackHabit? = null
 
     fun updateState(fieldValue: Any?, fieldId: Int){ //same usage as edit habit
-
         _habitUiState.update { currentState ->
             var elementToUpdate = _habitUiState.asStateFlow().value
 
@@ -58,6 +59,7 @@ class HabitViewModel(
             var newCompleted = elementToUpdate?.completed
             var newDate = elementToUpdate?.date
             var newIntervalDays = elementToUpdate?.intervalDays
+
             when(fieldId){
                 2 -> {
                     newName= fieldValue as String
@@ -78,7 +80,7 @@ class HabitViewModel(
                 }
 
                 5 -> {
-                    newDate = fieldValue as Long?
+                    newDate = fieldValue as String
                 }
 
                 6 -> {
@@ -88,15 +90,13 @@ class HabitViewModel(
                 else -> {
                     Log.d("HabitUiStateError","FieldId: ${fieldId}, FieldValue: {$fieldValue}")
                 }
-
-
             }
             currentState.copy(
                 name = newName.toString(),
                 description = newDescription,
                 completed = newCompleted!!,
                 date = newDate,
-                intervalDays = newIntervalDays
+                intervalDays = newIntervalDays!!
             )
         }
     }
@@ -109,7 +109,6 @@ class HabitViewModel(
                     id = updatedHabit.hid,
                     name = updatedHabit.name,
                     description = updatedHabit.description,
-//                    completed = updatedHabit.completed,
                     date = updatedHabit.date,
                     intervalDays = updatedHabit.intervalDays
                 )
@@ -127,6 +126,17 @@ class HabitViewModel(
 
     suspend fun printHabitById(id: Int): Habit? {
         return habitsRepository.getHabitStream(id).first()
+    }
+
+    fun checkIfAnyNull(): Boolean {
+        if(
+            _habitUiState.value.name == null ||
+            _habitUiState.value.date == null ||
+            _habitUiState.value.intervalDays == null
+        ){
+            return true
+        }
+        return false
     }
 }
 

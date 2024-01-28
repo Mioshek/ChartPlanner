@@ -55,7 +55,7 @@ fun BottomBar(
                 icon = {
                     Icon(
                         painterResource(id = item.icon),
-                        contentDescription = item.title
+                        contentDescription = item.title,
                     )
                 },
                 label = { Text(text = item.title) },

@@ -37,18 +37,13 @@ class ChartViewModel(
 
     fun calculateValuesForChart(){
         for (day in 1.._chartUiState.value.maxDay){
-
         }
-
     }
 
-
-
-    fun doesHabitOccur(habit: Habit, givenDate: Long): Boolean {
-        val habitDate = LocalDate.ofEpochDay(habit.date/(24 * 60 * 60 * 1000))
-        val givenDate = LocalDate.ofEpochDay(givenDate/(24 * 60 * 60 * 1000))
-        val daysBetween = DAYS.between(habitDate, givenDate)
-        return daysBetween % habit.intervalDays == 0L
-    }
-
+//    fun doesHabitOccur(habit: Habit, givenDate: Long): Boolean {
+//        val habitDate = LocalDate.ofEpochDay(habit.date/(24 * 60 * 60 * 1000))
+//        val givenDate = LocalDate.ofEpochDay(givenDate/(24 * 60 * 60 * 1000))
+//        val daysBetween = DAYS.between(habitDate, givenDate)
+//        return daysBetween % habit.intervalDays == 0L
+//    }
 }

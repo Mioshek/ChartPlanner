@@ -1,13 +1,10 @@
 package com.mioshek.chartplanner.assets.numberpicker
 
 
-import android.content.res.Configuration
-import androidx.compose.foundation.Canvas
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -29,20 +26,15 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -50,7 +42,6 @@ import com.mioshek.chartplanner.R
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
-//Based on https://gist.github.com/nhcodes/dc68c65ee586628fda5700911e44543f
 
 @Composable
 fun rememberPickerState() = remember { PickerState() }
@@ -71,11 +62,12 @@ fun CustomNumberPicker(
     padding: Dp,
     fontSize: TextUnit,
     modifier: Modifier = Modifier,
-){
-    val visibleItemsMiddle = visibleItemsCount/2
+) {
+    val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = Int.MAX_VALUE
     val listScrollMiddle = listScrollCount / 2
-    val listStartIndex = listScrollMiddle - listScrollMiddle % items.size - visibleItemsMiddle + startIndex
+    val listStartIndex =
+        listScrollMiddle - listScrollMiddle % items.size - visibleItemsMiddle + startIndex
 
     fun getItem(index: Int) = items[index % items.size]
 
@@ -93,18 +85,20 @@ fun CustomNumberPicker(
         )
     }
 
-
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
             .map { index -> getItem(index + visibleItemsMiddle) }
             .distinctUntilChanged()
-            .collect {
-                    item -> state.selectedItem = item
-                onValueChange(item)
+            .collect { item ->
+                if (state.selectedItem != item) {
+                    onValueChange(item)
+                    Log.d("item", "$item, ${item.javaClass}")
+                }
             }
-    }
-    Box(modifier = modifier) {
 
+    }
+
+    Box(modifier = modifier) {
         LazyColumn(
             state = listState,
             flingBehavior = flingBehavior,
@@ -129,21 +123,21 @@ fun CustomNumberPicker(
 
         Divider(
             color = dividerColor,
-            modifier = Modifier.offset(y = itemHeightDp * visibleItemsMiddle - padding/2)
+            modifier = Modifier.offset(y = itemHeightDp * visibleItemsMiddle - padding / 2)
         )
 
         Divider(
             color = dividerColor,
-            modifier = Modifier.offset(y = itemHeightDp * (visibleItemsMiddle + 1) + padding/2)
+            modifier = Modifier.offset(y = itemHeightDp * (visibleItemsMiddle + 1) + padding / 2)
         )
 
         Icon(
             painter = painterResource(R.drawable.swipe_vertical),
-            "",
+            contentDescription = "",
             modifier
                 .size(40.dp)
                 .padding(end = 10.dp)
-                .offset(y = itemHeightDp * visibleItemsMiddle + padding/3, x = 10.dp)
+                .offset(y = itemHeightDp * visibleItemsMiddle + padding / 3, x = 10.dp)
         )
     }
 }
@@ -158,10 +152,3 @@ private fun Modifier.fadingEdge(brush: Brush) = this
 
 @Composable
 private fun pixelsToDp(pixels: Int) = with(LocalDensity.current) { pixels.toDp() }
-
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, device = "id:pixel_6_pro")
-@Composable
-fun NumberPickerPreview(){
-
-}

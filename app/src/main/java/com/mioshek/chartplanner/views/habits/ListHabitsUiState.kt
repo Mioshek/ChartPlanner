@@ -1,9 +1,7 @@
 package com.mioshek.chartplanner.views.habits
 
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mioshek.chartplanner.data.models.habits.Habit
@@ -12,15 +10,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import java.util.Date
 
 
 data class ListHabitsUiState(
-    val habits: Flow<List<Habit>> = flowOf(listOf())
+    val habits: Flow<List<Habit>> = flowOf(listOf()),
+    val enterSelectMode: Boolean = false
 )
 
 class ListHabitsViewModel(
@@ -34,14 +30,19 @@ class ListHabitsViewModel(
 
 
     @Composable
-    fun updateListUi(){
-        val extracted = habitsRepository.getAllHabitsStream()
-
+    fun updateListUi(date: String){
+        val extracted = habitsRepository.getAllHabitsByDateStream(date)
 
         _listHabitsUiState.update { currentState->
             currentState.copy(
                 habits = extracted
             )
+        }
+    }
+
+    fun changeSelection(selection: Boolean){
+        _listHabitsUiState.update {currentState ->
+            currentState.copy(enterSelectMode = selection)
         }
     }
 

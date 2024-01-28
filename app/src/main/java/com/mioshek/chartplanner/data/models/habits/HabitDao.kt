@@ -18,7 +18,7 @@ interface HabitDao{
         h_id: Int,
         name: String,
         description: String,
-        date: Long,
+        date: String,
         intervalDays: Int,
     )
 
@@ -30,4 +30,10 @@ interface HabitDao{
 
     @Query("SELECT * FROM habits ORDER BY name ASC")
     fun getAll(): Flow<List<Habit>>
+
+    @Query("SELECT *" +
+            "FROM HABITS " +
+            "WHERE (JULIANDAY(substr(:date, 7, 4) || '-' || substr(:date, 4, 2) || '-' || substr(:date, 1, 2)) - julianday(substr(date, 7, 4) || '-' || substr(date, 4, 2) || '-' || substr(date, 1, 2))) % intervalDays = 0\n " +
+            "ORDER BY name ASC")
+    fun getAllByDate(date: String): Flow<List<Habit>>
 }

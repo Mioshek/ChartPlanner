@@ -8,6 +8,8 @@ interface HabitsRepository {
 
     fun getHabitStream(id: Int): Flow<Habit?>
 
+    fun getAllHabitsByDateStream(date: String): Flow<List<Habit>>
+
     suspend fun insert(habit: Habit)
 
     suspend fun delete(h_id: Int)
@@ -19,6 +21,7 @@ class OfflineHabitsRepository(private val habitDao: HabitDao) : HabitsRepository
     override fun getAllHabitsStream(): Flow<List<Habit>> = habitDao.getAll()
 
     override fun getHabitStream(id: Int): Flow<Habit?> = habitDao.get(id)
+    override fun getAllHabitsByDateStream(date: String): Flow<List<Habit>> = habitDao.getAllByDate(date)
 
     override suspend fun insert(habit: Habit) = habitDao.insert(habit)
 

@@ -20,9 +20,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import com.mioshek.chartplanner.views.charts.ChartDescription
 import com.mioshek.chartplanner.views.charts.ChartSettings
-import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 
 
 @Composable
@@ -123,13 +123,14 @@ private fun DrawScope.drawAxes(
 
     // Draw x-axis labels
     val entryWidth = axisLabelSize + 80.dp
-    val partitionsX = size.width / entryWidth.value
-    val xGap = size.width / partitionsX
+    var partitionsX = size.width / entryWidth.value
+    if (partitionsX > xValues.size) {partitionsX = xValues.size.toFloat()
+    }
+    val xGap = size.width / (partitionsX -1)
     val xNumberGap = yValues.size / partitionsX
     var j = 0
-
+    var x = 0f
     while (j < partitionsX){
-        val x = j * xGap
         drawLine(
             start = Offset(x, size.height),
             end = Offset(x, size.height + 10),
@@ -138,7 +139,7 @@ private fun DrawScope.drawAxes(
         )
 
         drawContext.canvas.nativeCanvas.drawText(
-            (j * xNumberGap).toInt().toString(),
+            xValues[(j * xNumberGap).toInt()].toString(),
             x,
             size.height + axisLabelSize.toPx() + 4f,
             Paint().apply {
@@ -147,6 +148,7 @@ private fun DrawScope.drawAxes(
             textSize = axisLabelSize.toPx()
             }
         )
+        x += xGap
         j +=1
     }
 
@@ -154,7 +156,8 @@ private fun DrawScope.drawAxes(
     val max: Int = yValues.max().toInt()
     val min: Int = yValues.min().toInt()
     val entryHeight = axisLabelSize + 50.dp
-    val partitionsY = size.height / entryHeight.value
+    var partitionsY = size.height / entryHeight.value
+    if (partitionsY > yValues.size) {partitionsY = yValues.size.toFloat()}
     val yGap = size.height / partitionsY
     val heightGap = (max - min).toFloat() / partitionsY
 
