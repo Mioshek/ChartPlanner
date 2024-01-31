@@ -19,19 +19,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mioshek.chartplanner.ui.AppViewModelProvider
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
-import kotlin.math.roundToInt
-
-val yPoints = listOf(0f,13f,1f,7f,8f,14f)
+import com.mioshek.chartplanner.views.habits.ListHabitsViewModel
 
 @Composable
-fun DrawGraph(modifier: Modifier = Modifier){
+fun DrawGraph(
+    chartViewModel: ChartViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    modifier: Modifier = Modifier
+){
     var currentHorizontalDrag by remember { mutableStateOf(Pair(0.dp, 0.dp)) }
+    val yPoints by remember {mutableStateOf(chartViewModel.chartUiState.value.yValues)}
+    chartViewModel.calculateValuesForChart()
     Box(
         Modifier.pointerInput(Unit){
             detectDragGestures (

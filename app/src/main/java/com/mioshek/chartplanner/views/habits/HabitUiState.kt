@@ -3,6 +3,9 @@ package com.mioshek.chartplanner.views.habits
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.mioshek.chartplanner.assets.formats.DateFormatter
+import com.mioshek.chartplanner.data.models.habits.Completed
+import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,13 +13,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import java.sql.Date
 
 data class HabitUiState(
     val id: Int? = null,
     val name: String = "",
     val description: String? = "",
-    val completed: Boolean = false,
+    val done: Boolean = false,
     val date: String? = null,
     val intervalDays: Int? = null, // 1 means everyday, 0 means once
     val selected: Boolean = false
@@ -43,7 +45,8 @@ fun HabitUiState.toHabit(): Habit {
 
 class HabitViewModel(
     savedStateHandle: SavedStateHandle,
-    private val habitsRepository: HabitsRepository
+    private val habitsRepository: HabitsRepository,
+    private val completedRepository: CompletedRepository
 ): ViewModel() {
     private val _habitUiState = MutableStateFlow(HabitUiState())
     val habitUiState: StateFlow<HabitUiState> = _habitUiState.asStateFlow()
@@ -56,7 +59,7 @@ class HabitViewModel(
 
             var newName = elementToUpdate?.name
             var newDescription = elementToUpdate?.description
-            var newCompleted = elementToUpdate?.completed
+            var newCompleted = elementToUpdate?.done
             var newDate = elementToUpdate?.date
             var newIntervalDays = elementToUpdate?.intervalDays
 
@@ -94,7 +97,7 @@ class HabitViewModel(
             currentState.copy(
                 name = newName.toString(),
                 description = newDescription,
-                completed = newCompleted!!,
+                done = newCompleted!!,
                 date = newDate,
                 intervalDays = newIntervalDays!!
             )
@@ -124,9 +127,10 @@ class HabitViewModel(
         habitsRepository.update(newHabit)
     }
 
-    suspend fun printHabitById(id: Int): Habit? {
+    suspend fun getHabitById(id: Int): Habit? {
         return habitsRepository.getHabitStream(id).first()
     }
+
 
     fun checkIfAnyNull(): Boolean {
         if(

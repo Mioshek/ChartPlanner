@@ -16,16 +16,13 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Completed(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @NonNull
-    val id: Int,
+    val id: Int = 0,
 
     @NonNull
     val habitId: Int,
 
     @NonNull
-    val date: Long,
-
-    @NonNull
-    val completed: Boolean
+    val date: String,
 )

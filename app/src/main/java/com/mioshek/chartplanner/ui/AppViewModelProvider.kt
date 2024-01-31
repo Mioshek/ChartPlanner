@@ -15,21 +15,24 @@ object AppViewModelProvider {
         initializer {
             ListHabitsViewModel(
                 this.createSavedStateHandle(),
-                habitApplication().container.habitsRepository
+                habitApplication().container.habitsRepository,
+                habitApplication().container.completedRepository
             )
         }
 
         initializer {
             HabitViewModel(
                 this.createSavedStateHandle(),
-                habitApplication().container.habitsRepository
+                habitApplication().container.habitsRepository,
+                habitApplication().container.completedRepository
             )
         }
 
         initializer {
             ChartViewModel(
                 this.createSavedStateHandle(),
-                habitApplication().container.habitsRepository
+                habitApplication().container.habitsRepository,
+                habitApplication().container.completedRepository
             )
         }
     }

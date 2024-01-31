@@ -1,5 +1,6 @@
 import android.content.res.Configuration
 import android.graphics.Paint
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -139,7 +140,7 @@ private fun DrawScope.drawAxes(
         )
 
         drawContext.canvas.nativeCanvas.drawText(
-            xValues[(j * xNumberGap).toInt()].toString(),
+            "${(j * xNumberGap).toInt()}",
             x,
             size.height + axisLabelSize.toPx() + 4f,
             Paint().apply {

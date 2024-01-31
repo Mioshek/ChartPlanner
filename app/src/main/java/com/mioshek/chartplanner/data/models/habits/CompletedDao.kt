@@ -11,8 +11,8 @@ interface CompletedDao{
     @Insert
     suspend fun insert(completed: Completed)
 
-    @Query("DELETE FROM completed WHERE id =:completedId")
-    suspend fun delete(completedId: Int)
+    @Query("DELETE FROM completed WHERE date = :date AND habitId = :hid ")
+    suspend fun delete(date: String, hid: Int)
 
     @Query("SELECT * " +
             "FROM completed " +
@@ -21,6 +21,6 @@ interface CompletedDao{
 
     @Query("SELECT * " +
             "FROM completed " +
-            "WHERE date BETWEEN :startDate AND :endDate")
-    fun getByDateRange(startDate: Long, endDate: Long): Flow<List<Completed>>
+            "WHERE date = :date")
+    fun getByDate(date: String): Flow<List<Completed>>
 }

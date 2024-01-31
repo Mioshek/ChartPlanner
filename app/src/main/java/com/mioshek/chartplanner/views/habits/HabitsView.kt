@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,12 +17,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,12 +48,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mioshek.chartplanner.R
-import com.mioshek.chartplanner.data.models.habits.toHabitUiState
+import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.ui.AppViewModelProvider
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.launch
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ListHabits(
     navController: NavController,
@@ -58,7 +64,6 @@ fun ListHabits(
     val verticalScroll = rememberScrollState(0)
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
     var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
     var changeDate by remember { mutableStateOf(false) }
 
     Box(
@@ -90,8 +95,8 @@ fun ListHabits(
                 )
             }
     ){
-        habitsViewModel.updateListUi(sdf.format(displayedDate))
-        val habitsList = listHabitsUiState.habits.collectAsState(listOf()).value
+        habitsViewModel.updateListUi(DateFormatter.sdf.format(displayedDate).substring(0,10))
+        val habitsList = listHabitsUiState.habits
 
         if (habitsList.isNotEmpty()) {
             Column(
@@ -100,13 +105,42 @@ fun ListHabits(
                     .verticalScroll(verticalScroll),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-
-                Text("Date: ${sdf.format(displayedDate).substring(0,10)}")
+                Card(
+                    elevation = CardDefaults.cardElevation(1.dp),
+                    modifier = modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(5.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier
+                                .weight(2f)
+                                .clickable{
+                                    displayedDate -=(1000 * 60 * 60 * 24)
+                                }) {
+                            Icon(Icons.Default.KeyboardArrowLeft, "Left")
+                        }
+                        Text(
+                            "Date: ${DateFormatter.sdf.format(displayedDate).substring(0, 10)}",
+                            modifier = Modifier.weight(3f).align(Alignment.CenterVertically)
+                        )
+                        Box(contentAlignment = Alignment.CenterEnd,
+                            modifier = Modifier
+                                .weight(2f)
+                                .clickable {
+                                    displayedDate +=(1000 * 60 * 60 * 24)
+                                }
+                        ) {
+                            Icon(Icons.Default.KeyboardArrowRight, "Right")
+                        }
+                    }
+                }
 
                 Spacer(modifier.padding(10.dp))
 
-                habitsList.forEach {
-                    HabitElement(it.toHabitUiState(), navController, habitsViewModel)
+                habitsList.forEach { value ->
+                    HabitElement(value, navController, habitsViewModel, DateFormatter.sdf.format(displayedDate).substring(0,10))
                 }
             }
             NewHabitNavigation(navController, "New")
@@ -123,12 +157,12 @@ fun ListHabits(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitElement(
     habit: HabitUiState,
     navController: NavController,
     habitsViewModel: ListHabitsViewModel,
+    date: String,
     modifier: Modifier = Modifier
 ){
     Card(
@@ -160,17 +194,41 @@ fun HabitElement(
             },
     ) {
         val displayedNextOccurring = habit.date?.substring(0,10)
+        val coroutineScope = rememberCoroutineScope()
 
-        Column(
+        Box(
             modifier
                 .fillMaxSize()
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(10.dp)
+                .align(Alignment.CenterHorizontally)
         ) {
-            Text(habit.name)
-            Text(habit.description ?: "Description Empty")
-            Text("Next: $displayedNextOccurring")
-            Text("Interval: ${habit.intervalDays}")
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // The Text elements
+                Text(habit.name)
+
+                // The Icon element aligned to the right
+                Icon(
+                    painter = if (habit.done) painterResource(R.drawable.check_circle) else painterResource(R.drawable.radio_button_unchecked),
+                    contentDescription = "Completed",
+                    modifier = Modifier
+                        .clickable {
+                            coroutineScope.launch {
+                                if (habit.done) {
+                                    habitsViewModel.tickUndoneHabit(date, habit.id!!)
+                                } else {
+                                    habitsViewModel.completeHabit(habit.id!!, date)
+                                }
+                            }
+                        }
+//                        .weight(0.1f) // Adjust the weight as needed
+                        .wrapContentWidth(Alignment.End)
+                )
+            }
         }
     }
 }
