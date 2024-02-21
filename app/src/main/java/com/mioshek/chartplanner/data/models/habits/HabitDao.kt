@@ -33,7 +33,9 @@ interface HabitDao{
 
     @Query("SELECT *" +
             "FROM HABITS " +
-            "WHERE (JULIANDAY(substr(:date, 7, 4) || '-' || substr(:date, 4, 2) || '-' || substr(:date, 1, 2)) - julianday(substr(date, 7, 4) || '-' || substr(date, 4, 2) || '-' || substr(date, 1, 2))) % intervalDays = 0\n " +
+            "WHERE (JULIANDAY(substr(:date, 7, 4) || '-' || substr(:date, 4, 2) || '-' " +
+            "|| substr(:date, 1, 2)) - julianday(substr(date, 7, 4) || '-' || substr(date, 4, 2) " +
+            "|| '-' || substr(date, 1, 2))) % intervalDays = 0\n or (intervalDays == 0  and date = :date)" +
             "ORDER BY name ASC")
     fun getAllByDate(date: String): Flow<List<Habit>>
 }

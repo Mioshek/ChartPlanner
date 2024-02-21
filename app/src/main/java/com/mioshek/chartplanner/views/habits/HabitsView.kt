@@ -2,8 +2,8 @@ package com.mioshek.chartplanner.views.habits
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -64,23 +65,27 @@ fun ListHabits(
     val verticalScroll = rememberScrollState(0)
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
     var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val chosenDate = navController.currentBackStackEntry?.savedStateHandle?.get<Long?>("date")
+    if (chosenDate != null){
+        displayedDate = chosenDate
+    }
     var changeDate by remember { mutableStateOf(false) }
 
     Box(
         modifier
             .fillMaxSize()
             .padding(top = 20.dp, start = 20.dp, end = 20.dp)
-            .pointerInput(Unit){
-                detectDragGestures (
-                    onDrag = {
-                        _, dragAmount ->
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { _, dragAmount ->
                         val (x, _) = dragAmount
-                        if (changeDate){
+                        if (changeDate) {
                             when {
                                 x > 0 -> {
-                                    displayedDate -=(1000 * 60 * 60 * 24)
+                                    displayedDate -= (1000 * 60 * 60 * 24)
                                     changeDate = false
                                 }
+
                                 x < 0 -> {
                                     displayedDate += (1000 * 60 * 60 * 24)
                                     changeDate = false
@@ -116,20 +121,33 @@ fun ListHabits(
                             contentAlignment = Alignment.CenterStart,
                             modifier = Modifier
                                 .weight(2f)
-                                .clickable{
-                                    displayedDate -=(1000 * 60 * 60 * 24)
+                                .clickable {
+                                    displayedDate -= (1000 * 60 * 60 * 24)
                                 }) {
                             Icon(Icons.Default.KeyboardArrowLeft, "Left")
                         }
+
                         Text(
                             "Date: ${DateFormatter.sdf.format(displayedDate).substring(0, 10)}",
-                            modifier = Modifier.weight(3f).align(Alignment.CenterVertically)
+                            modifier = Modifier
+                                .weight(3f)
+                                .align(Alignment.CenterVertically)
+                                .clickable {
+                                    navController.navigate("habits/calendar")
+                                }
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.onBackground.copy(0.5f),
+                                    shape = RoundedCornerShape(8.dp) // Adjust the corner radius as needed
+                                )
+                                .padding(start = 6.dp, bottom = 2.dp, end = 0.dp, top = 2.dp)
                         )
+
                         Box(contentAlignment = Alignment.CenterEnd,
                             modifier = Modifier
                                 .weight(2f)
                                 .clickable {
-                                    displayedDate +=(1000 * 60 * 60 * 24)
+                                    displayedDate += (1000 * 60 * 60 * 24)
                                 }
                         ) {
                             Icon(Icons.Default.KeyboardArrowRight, "Right")
@@ -177,16 +195,17 @@ fun HabitElement(
             .fillMaxWidth()
             .fillMaxHeight(0.2f)
             .padding(bottom = 10.dp)
-            .pointerInput(Unit){
+            .pointerInput(Unit) {
                 detectTapGestures(
-                    onLongPress = { habitsViewModel.changeSelection(true)
-                        Log.d("Gestures", "Long Press")},
+                    onLongPress = { habitsViewModel.changeSelection(true) },
                     onTap = {
-                        if (habitsViewModel.habitUiState.value.enterSelectMode){
+                        if (habitsViewModel.habitUiState.value.enterSelectMode) {
                             habitsViewModel.changeSelection(false)
-                            Log.d("Gestures", "Tap")
-                        }
-                        else{
+                        } else {
+                            navController.currentBackStackEntry?.savedStateHandle?.set(
+                                "isInsertedToDb",
+                                false
+                            )
                             navController.navigate("habits/${habit.id}")
                         }
                     }
@@ -241,7 +260,9 @@ fun NewHabitNavigation(
 ){
     var glowSize by remember{ mutableStateOf(0.dp) }
     Box(
-        modifier = modifier.fillMaxSize().offset(y = (-10).dp, x = (-5).dp)
+        modifier = modifier
+            .fillMaxSize()
+            .offset(y = (-10).dp, x = (-5).dp)
     ){
         LaunchedEffect(true) {
             var countUp = true

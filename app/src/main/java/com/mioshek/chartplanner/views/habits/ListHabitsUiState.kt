@@ -47,10 +47,8 @@ class ListHabitsViewModel(
                 var done = false
                 if (extractedCompleted != null){
                     for (completed in extractedCompleted){
-                        Log.d("ForLoop", "hid: ${habit.hid}, completedid: ${completed.habitId}")
                         if(habit.hid == completed.habitId){
                             done = true
-                            Log.d("Completed", "True")
                         }
                     }
                 }

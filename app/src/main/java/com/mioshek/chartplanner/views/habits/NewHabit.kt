@@ -3,6 +3,7 @@ package com.mioshek.chartplanner.views.habits
 import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,15 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -52,14 +49,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.compose.rememberNavController
 import com.mioshek.chartplanner.R
-import com.mioshek.chartplanner.assets.numberpicker.CustomNumberPicker
-import com.mioshek.chartplanner.assets.numberpicker.rememberPickerState
+import com.mioshek.chartplanner.assets.formats.DateFormatter
+import com.mioshek.chartplanner.assets.pickers.CalendarPicker
+import com.mioshek.chartplanner.assets.pickers.CustomNumberPicker
+import com.mioshek.chartplanner.assets.pickers.rememberPickerState
 import com.mioshek.chartplanner.ui.AppViewModelProvider
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.sql.Timestamp
-import java.text.SimpleDateFormat
 import java.util.Calendar
 
 
@@ -69,7 +66,7 @@ fun NewHabit(
     navController: NavController,
     habitId: Int?,
     habitViewModel: HabitViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ){
     val coroutineScope = rememberCoroutineScope()
     val habit = habitViewModel.habitUiState.collectAsState()
@@ -78,7 +75,7 @@ fun NewHabit(
     val source = remember{ MutableInteractionSource()}
     var isSourcePressed by remember { mutableStateOf(false) }// second argument -> was clicked?
 
-    if (habitId != null && !updatedFromDb!!){
+    if (habitId != null && !updatedFromDb){
         coroutineScope.launch {
             habitViewModel.getHabitFromDb(habitId)
         }
@@ -127,12 +124,15 @@ fun NewHabit(
 
             // Changes in date listener
             LaunchedEffect(key1 = Unit){
-
-                if (habit.value.date != navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String?>("date")?.value){
-                    habitViewModel.updateState(
-                        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String?>("date")?.value,
-                        5
-                    )
+                val longDate = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Long?>("date")?.value
+                if (longDate != null){
+                    val date = DateFormatter.sdf.format(longDate).substring(0,10)
+                    if (habit.value.date != date){
+                        habitViewModel.updateState(
+                            date,
+                            5
+                        )
+                    }
                 }
             }
 
@@ -311,50 +311,7 @@ fun NavigationButtons(
     }
 }
 
-@SuppressLint("UnrememberedGetBackStackEntry")
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CalendarPicker(
-    navController: NavController,
-){
-    val currentYear = Calendar.getInstance()[Calendar.YEAR]
-    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
-    val datePickerState = rememberDatePickerState(
-        yearRange = IntRange(currentYear, currentYear + 20)
-    )
 
-    DatePickerDialog(
-        onDismissRequest = {navController.popBackStack()},
-        confirmButton = {
-            Button(onClick = {
-                var longDate: Long = if (datePickerState.selectedDateMillis != null){
-                    datePickerState.selectedDateMillis!!
-                } else{
-                     System.currentTimeMillis()
-                }
-
-                val timestamp = sdf.format(Timestamp(longDate))
-                navController.previousBackStackEntry?.savedStateHandle?.set("date", timestamp)
-                navController.popBackStack()
-            }
-
-            ) {
-                Text(text = "OK")
-            }
-        },
-        dismissButton = {
-            Button(onClick = {
-                navController.popBackStack()
-            }) {
-                Text(text = "Cancel")
-            }
-        }
-    ){
-        DatePicker(
-            state = datePickerState
-        )
-    }
-}
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, device = "id:pixel_6_pro")
 @Composable
 fun NewHabitPreview(){

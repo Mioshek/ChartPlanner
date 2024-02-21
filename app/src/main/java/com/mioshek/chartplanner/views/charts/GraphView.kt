@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mioshek.chartplanner.ui.AppViewModelProvider
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
-import com.mioshek.chartplanner.views.habits.ListHabitsViewModel
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun DrawGraph(
     chartViewModel: ChartViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -34,7 +34,7 @@ fun DrawGraph(
 ){
     var currentHorizontalDrag by remember { mutableStateOf(Pair(0.dp, 0.dp)) }
     val yPoints by remember {mutableStateOf(chartViewModel.chartUiState.value.yValues)}
-    chartViewModel.calculateValuesForChart()
+        chartViewModel.CalculateValuesForChart()
     Box(
         Modifier.pointerInput(Unit){
             detectDragGestures (
@@ -45,7 +45,6 @@ fun DrawGraph(
                     val (x, y) = dragAmount
                     when {
                         x > 0 -> {
-                            Log.d("Direction", "Right")
                             var chartDrag = if (x < 10) x else 10F
                             if (chartDrag + currentHorizontalDrag.second.value > 10){
                                 chartDrag = 0F
@@ -54,10 +53,8 @@ fun DrawGraph(
                                 currentHorizontalDrag.first - chartDrag.toDp(),
                                 currentHorizontalDrag.second + chartDrag.toDp()
                             )
-                            Log.d("Direction", "${currentHorizontalDrag.first}, ${currentHorizontalDrag.second}")
                         }
                         x < 0 -> {
-                            Log.d("Direction", "Left")
                             var chartDrag = if (-x < 20) -x else 20F
                             if (chartDrag + currentHorizontalDrag.first.value > 20){
                                 chartDrag = 0F
@@ -66,7 +63,6 @@ fun DrawGraph(
                                 currentHorizontalDrag.first + chartDrag.toDp(),
                                 currentHorizontalDrag.second - chartDrag.toDp()
                             )
-                            Log.d("Direction", "${currentHorizontalDrag.first}, ${currentHorizontalDrag.second}")
                         }
                     }
                     when {

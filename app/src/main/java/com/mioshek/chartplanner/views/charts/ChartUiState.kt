@@ -7,13 +7,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
-import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit.DAYS
 import java.util.Calendar
 
 data class ChartUiState(
@@ -44,14 +42,14 @@ class ChartViewModel(
 
     @SuppressLint("StateFlowValueCalledInComposition")
     @Composable
-    fun calculateValuesForChart(){
+    fun CalculateValuesForChart(){
         _chartUiState.value.yValues.clear()
         for (day in 1.._chartUiState.value.maxDay){
             val calendar = Calendar.getInstance()
             calendar.set(Calendar.YEAR, 2024)
             calendar.set(Calendar.DAY_OF_YEAR, day)
-            val day = DateFormatter.sdf.format(calendar.timeInMillis).substring(0,10)
-            _chartUiState.value.yValues.add(calculateDay(day))
+            val formattedDay = DateFormatter.sdf.format(calendar.timeInMillis).substring(0,10)
+            _chartUiState.value.yValues.add(calculateDay(formattedDay))
         }
     }
 
@@ -63,10 +61,4 @@ class ChartViewModel(
             extractedCompleted.size / allDayHabits.toFloat() * 100
         } else 0f
     }
-//    fun doesHabitOccur(habit: Habit, givenDate: Long): Boolean {
-//        val habitDate = LocalDate.ofEpochDay(habit.date/(24 * 60 * 60 * 1000))
-//        val givenDate = LocalDate.ofEpochDay(givenDate/(24 * 60 * 60 * 1000))
-//        val daysBetween = DAYS.between(habitDate, givenDate)
-//        return daysBetween % habit.intervalDays == 0L
-//    }
 }

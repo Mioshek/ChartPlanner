@@ -17,12 +17,9 @@ import androidx.room.PrimaryKey
 )
 data class Completed(
     @PrimaryKey(autoGenerate = true)
-    @NonNull
     val id: Int = 0,
 
-    @NonNull
     val habitId: Int,
 
-    @NonNull
     val date: String,
 )
