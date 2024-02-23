@@ -16,7 +16,8 @@ object AppViewModelProvider {
             ListHabitsViewModel(
                 this.createSavedStateHandle(),
                 habitApplication().container.habitsRepository,
-                habitApplication().container.completedRepository
+                habitApplication().container.completedRepository,
+                habitApplication().container.settingsRepository
             )
         }
 
@@ -24,7 +25,8 @@ object AppViewModelProvider {
             HabitViewModel(
                 this.createSavedStateHandle(),
                 habitApplication().container.habitsRepository,
-                habitApplication().container.completedRepository
+                habitApplication().container.completedRepository,
+                habitApplication().container.settingsRepository
             )
         }
 
@@ -32,7 +34,8 @@ object AppViewModelProvider {
             ChartViewModel(
                 this.createSavedStateHandle(),
                 habitApplication().container.habitsRepository,
-                habitApplication().container.completedRepository
+                habitApplication().container.completedRepository,
+                habitApplication().container.settingsRepository
             )
         }
     }

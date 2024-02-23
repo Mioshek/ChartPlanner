@@ -12,6 +12,7 @@ import com.mioshek.chartplanner.data.models.habits.Completed
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
+import com.mioshek.chartplanner.data.models.settings.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,8 @@ data class ListHabitsUiState(
 class ListHabitsViewModel(
     savedStateHandle: SavedStateHandle,
     private val habitsRepository: HabitsRepository,
-    private val completedRepository: CompletedRepository
+    private val completedRepository: CompletedRepository,
+    private val settingsRepository: SettingsRepository
 ): ViewModel() {
     private val _listHabitsUiState = MutableStateFlow(ListHabitsUiState())
     val habitUiState: StateFlow<ListHabitsUiState> = _listHabitsUiState.asStateFlow()

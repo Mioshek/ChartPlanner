@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
+import com.mioshek.chartplanner.data.models.settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,7 +32,8 @@ enum class CustomTimestamp(val range: IntRange) {
 class ChartViewModel(
     savedStateHandle: SavedStateHandle,
     private val habitsRepository: HabitsRepository,
-    private val completedRepository: CompletedRepository
+    private val completedRepository: CompletedRepository,
+    private val settingsRepository: SettingsRepository
 ): ViewModel() {
     private val _chartUiState = MutableStateFlow(ChartUiState())
     val chartUiState: StateFlow<ChartUiState> = _chartUiState.asStateFlow()

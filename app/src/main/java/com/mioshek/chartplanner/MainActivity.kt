@@ -15,9 +15,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
 import com.mioshek.chartplanner.data.models.AppDatabase
 import com.mioshek.chartplanner.data.models.AppDatabase_Impl
+import com.mioshek.chartplanner.data.models.settings.Setting
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -29,6 +32,24 @@ class MainActivity : ComponentActivity() {
                 systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
         }
+        val context = this
+        lifecycleScope.launch {
+            try {
+                // Call the insert function from the DAO
+                AppDatabase.getDatabase(context).settingsDao.insert(
+                    Setting(
+                        settingName = "Init Date",
+                        value = "${System.currentTimeMillis()/1000}"
+                    )
+                )
+                // Insert successful
+            } catch (e: Exception) {
+                // Handle exceptions (e.g., SQLiteConstraintException if the record already exists)
+                // Insert failed
+                e.printStackTrace()
+            }
+        }
+
 
         super.onCreate(savedInstanceState)
 

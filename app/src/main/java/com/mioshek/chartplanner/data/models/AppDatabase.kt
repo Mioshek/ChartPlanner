@@ -8,13 +8,16 @@ import com.mioshek.chartplanner.data.models.habits.Completed
 import com.mioshek.chartplanner.data.models.habits.CompletedDao
 import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitDao
+import com.mioshek.chartplanner.data.models.settings.Setting
+import com.mioshek.chartplanner.data.models.settings.SettingsDao
 
-@Database(entities = [Habit::class, Completed::class], version = 1)
+@Database(entities = [Habit::class, Completed::class, Setting::class], version = 1)
 
 abstract class AppDatabase : RoomDatabase() {
 
     abstract val habitDao: HabitDao
     abstract val completedDao: CompletedDao
+    abstract val settingsDao: SettingsDao
 
     companion object {
         @Volatile

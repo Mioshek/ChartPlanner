@@ -7,6 +7,8 @@ import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import com.mioshek.chartplanner.data.models.habits.OfflineCompletedRepository
 import com.mioshek.chartplanner.data.models.habits.OfflineHabitsRepository
+import com.mioshek.chartplanner.data.models.settings.OfflineSettingsRepository
+import com.mioshek.chartplanner.data.models.settings.SettingsRepository
 
 /**
  * App container for Dependency injection.
@@ -14,6 +16,7 @@ import com.mioshek.chartplanner.data.models.habits.OfflineHabitsRepository
 interface AppContainer {
     val habitsRepository: HabitsRepository
     val completedRepository: CompletedRepository
+    val settingsRepository: SettingsRepository
 }
 
 /**
@@ -29,5 +32,9 @@ class AppDataContainer(private val context: Context) : AppContainer {
 
     override val completedRepository: CompletedRepository by lazy{
         OfflineCompletedRepository(AppDatabase.getDatabase(context).completedDao)
+    }
+
+    override val settingsRepository: SettingsRepository by lazy{
+        OfflineSettingsRepository(AppDatabase.getDatabase(context).settingsDao)
     }
 }
