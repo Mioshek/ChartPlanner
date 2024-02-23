@@ -43,10 +43,12 @@ fun LineChart(
             modifier = modifier
                 .fillMaxSize()
         ) {
+            if (yValues.size > 6){
+                drawAreaUnderChart(xValues, yValues, appearance.colorAreaUnderChart)
+                drawLineChart(xValues, yValues, appearance.lineColor, appearance.lineThickness.toPx())
+                drawPoints(xValues, yValues, appearance.circleColor, 2.dp)
+            }
             drawAxes(xValues, yValues, appearance.graphAxisColor, appearance.axisFontColor, appearance.axisFontSize.toDp(), appearance.lineThickness)
-            drawAreaUnderChart(xValues, yValues, appearance.colorAreaUnderChart)
-            drawLineChart(xValues, yValues, appearance.lineColor, appearance.lineThickness.toPx())
-            drawPoints(xValues, yValues, appearance.circleColor, 2.dp)
             drawChartDescription(appearance.chartDescription)
         }
     }
@@ -79,10 +81,17 @@ private fun DrawScope.drawChartDescription(
         }
     )
 
-    val yAxisNameChars = description.yAxisName.toCharArray()
+    val yAxisNameChars = description.yAxisName.toCharArray().reversedArray()
     val charsSize = yAxisNameChars.size
-    var y = size.height /2 - charsSize/2 * (description.axesNamesSize.value + 20)
-    for (char in yAxisNameChars){
+    var y = size.height / 2 - charsSize / 2 * (description.axesNamesSize.value + 20)
+
+    for (char in yAxisNameChars) {
+        drawContext.canvas.nativeCanvas.save()
+
+        // Rotate the canvas for each character
+        drawContext.canvas.nativeCanvas.rotate(-90f, -100f, y)
+
+        // Draw the rotated character
         drawContext.canvas.nativeCanvas.drawText(
             char.toString(),
             -100f,
@@ -93,6 +102,9 @@ private fun DrawScope.drawChartDescription(
                 textSize = description.axesNamesSize.toPx()
             }
         )
+
+        drawContext.canvas.nativeCanvas.restore()
+
         y += 20 + description.axesNamesSize.value
     }
 
@@ -123,76 +135,77 @@ private fun DrawScope.drawAxes(
     )
 
     // Draw x-axis labels
-    val entryWidth = axisLabelSize + 80.dp
-    var partitionsX = size.width / entryWidth.value
-    if (partitionsX > xValues.size) {partitionsX = xValues.size.toFloat()
-    }
-    val xGap = size.width / (partitionsX -1)
-    val xNumberGap = yValues.size / partitionsX
-    var j = 0
-    var x = 0f
-    while (j < partitionsX){
-        drawLine(
-            start = Offset(x, size.height),
-            end = Offset(x, size.height + 10),
-            color = axisLineColor,
-            strokeWidth = axisLineThickness.toPx()
-        )
-
-        drawContext.canvas.nativeCanvas.drawText(
-            "${(j * xNumberGap).toInt()}",
-            x,
-            size.height + axisLabelSize.toPx() + 4f,
-            Paint().apply {
-            color = axisLabelColor.toArgb()
-            textAlign = Paint.Align.CENTER
-            textSize = axisLabelSize.toPx()
-            }
-        )
-        x += xGap
-        j +=1
-    }
-
-    // Draw y-axis labels
-    val max: Int = yValues.max().toInt()
-    val min: Int = yValues.min().toInt()
-    val entryHeight = axisLabelSize + 50.dp
-    var partitionsY = size.height / entryHeight.value
-    if (partitionsY > yValues.size) {partitionsY = yValues.size.toFloat()}
-    val yGap = size.height / partitionsY
-    val heightGap = (max - min).toFloat() / partitionsY
-
-    var y = 0f
-    var heightLabel = max.toFloat()
-    var i = 0
-    while (i < partitionsY + 1) {
-        if (i > partitionsY){
-            heightLabel = min.toFloat()
-            y = size.height
+    if (yValues.size > 0){
+        val entryWidth = axisLabelSize + 80.dp
+        var partitionsX = size.width / entryWidth.value
+        if (partitionsX > xValues.size) {partitionsX = xValues.size.toFloat()
         }
-        // DRAW HERE
-        drawLine(
-            start = Offset(0f, y),
-            end = Offset(10f, y),
-            color = axisLineColor,
-            strokeWidth = axisLineThickness.toPx()
-        )
+        val xGap = size.width / (partitionsX -1)
+        val xNumberGap = yValues.size / partitionsX
+        var j = 0
+        var x = 0f
+        while (j < partitionsX){
+            drawLine(
+                start = Offset(x, size.height),
+                end = Offset(x, size.height + 10),
+                color = axisLineColor,
+                strokeWidth = axisLineThickness.toPx()
+            )
 
-        drawContext.canvas.nativeCanvas.drawText(
-            heightLabel.toInt().toString() /*+ "%"*/,
-            -axisLabelSize.toPx() - 8f,
-            y + axisLabelSize.toPx() / 2,
-            Paint().apply {
-                color = axisLabelColor.toArgb()
-                textAlign = Paint.Align.CENTER
-                textSize = axisLabelSize.toPx()
+            drawContext.canvas.nativeCanvas.drawText(
+                "${(j * xNumberGap).toInt()}",
+                x,
+                size.height + axisLabelSize.toPx() + 4f,
+                Paint().apply {
+                    color = axisLabelColor.toArgb()
+                    textAlign = Paint.Align.CENTER
+                    textSize = axisLabelSize.toPx()
+                }
+            )
+            x += xGap
+            j +=1
+        }
+
+        // Draw y-axis labels
+        val max: Int = yValues.max().toInt()
+        val min: Int = yValues.min().toInt()
+        val entryHeight = axisLabelSize + 50.dp
+        var partitionsY = size.height / entryHeight.value
+        if (partitionsY > yValues.size) {partitionsY = yValues.size.toFloat()}
+        val yGap = size.height / partitionsY
+        val heightGap = (max - min).toFloat() / partitionsY
+
+        var y = 0f
+        var heightLabel = max.toFloat()
+        var i = 0
+        while (i < partitionsY + 1) {
+            if (i > partitionsY){
+                heightLabel = min.toFloat()
+                y = size.height
             }
-        )
-        heightLabel -= heightGap
-        y += yGap
-        i += 1
-    }
+            // DRAW HERE
+            drawLine(
+                start = Offset(0f, y),
+                end = Offset(10f, y),
+                color = axisLineColor,
+                strokeWidth = axisLineThickness.toPx()
+            )
 
+            drawContext.canvas.nativeCanvas.drawText(
+                heightLabel.toInt().toString() /*+ "%"*/,
+                -axisLabelSize.toPx() - 8f,
+                y + axisLabelSize.toPx() / 2,
+                Paint().apply {
+                    color = axisLabelColor.toArgb()
+                    textAlign = Paint.Align.CENTER
+                    textSize = axisLabelSize.toPx()
+                }
+            )
+            heightLabel -= heightGap
+            y += yGap
+            i += 1
+        }
+    }
 }
 
 private fun DrawScope.drawLineChart(

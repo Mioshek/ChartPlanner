@@ -2,6 +2,7 @@ package com.mioshek.chartplanner.views.habits
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,11 +64,13 @@ fun ListHabits(
     habitsViewModel: ListHabitsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
     val verticalScroll = rememberScrollState(0)
+    var choosingDate by remember { mutableStateOf(true)}
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
     var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val chosenDate = navController.currentBackStackEntry?.savedStateHandle?.get<Long?>("date")
-    if (chosenDate != null){
+    if (chosenDate != null && choosingDate){
         displayedDate = chosenDate
+        choosingDate = false
     }
     var changeDate by remember { mutableStateOf(false) }
 
@@ -133,6 +136,7 @@ fun ListHabits(
                                 .weight(3f)
                                 .align(Alignment.CenterVertically)
                                 .clickable {
+                                    choosingDate = false
                                     navController.navigate("habits/calendar")
                                 }
                                 .border(

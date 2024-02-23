@@ -2,39 +2,68 @@ package com.mioshek.chartplanner.views.charts
 
 import LineChart
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mioshek.chartplanner.ui.AppViewModelProvider
-import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
+import kotlinx.coroutines.launch
 
-@SuppressLint("CoroutineCreationDuringComposition")
+@SuppressLint("CoroutineCreationDuringComposition", "MutableCollectionMutableState")
 @Composable
 fun DrawGraph(
     chartViewModel: ChartViewModel = viewModel(factory = AppViewModelProvider.Factory),
     modifier: Modifier = Modifier
 ){
     var currentHorizontalDrag by remember { mutableStateOf(Pair(0.dp, 0.dp)) }
-    val yPoints by remember {mutableStateOf(chartViewModel.chartUiState.value.yValues)}
-        chartViewModel.CalculateValuesForChart()
+    val coroutineScope = rememberCoroutineScope()
+    val chartUiState by chartViewModel.chartUiState.collectAsState()
+    var refresh by remember{ mutableStateOf(true)}
+    if (refresh){
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .fillMaxSize()
+                .zIndex(1f)
+        ){
+            CircularProgressIndicator(
+                modifier = modifier.size(50.dp),
+                color = Color.White
+            )
+        }
+
+        coroutineScope.launch {
+            refresh = chartViewModel.calculateValuesForChart()
+        }
+    }
+
     Box(
         Modifier.pointerInput(Unit){
             detectDragGestures (
@@ -76,6 +105,42 @@ fun DrawGraph(
             )
         }
     ){
+        var selected by remember{ mutableStateOf(CustomTimestamp.YEAR)}
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(50.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = modifier
+                    .fillMaxWidth()
+            ) {
+                for (timestamp in CustomTimestamp.values()){
+                    var backgroundColor = MaterialTheme.colorScheme.surface
+                    if (selected == timestamp){
+                        backgroundColor = MaterialTheme.colorScheme.background
+                    }
+                    Box(
+                        modifier = modifier
+                            .weight(1f)
+                            .background(backgroundColor, RoundedCornerShape(5.dp))
+                            .padding(top = 5.dp, bottom = 5.dp)
+                            .clickable {
+                                selected = timestamp
+                            }
+                    ){
+                        Text(
+                            text = timestamp.name,
+                            modifier = modifier
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+            }
+        }
         Column(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,11 +150,16 @@ fun DrawGraph(
 
                 modifier = modifier
                     .fillMaxHeight(0.6f)
-                    .padding(top = 20.dp, bottom = 10.dp, start = 40.dp - currentHorizontalDrag.first, end = 10.dp - currentHorizontalDrag.second)
+                    .padding(
+                        top = 20.dp,
+                        bottom = 10.dp,
+                        start = 40.dp - currentHorizontalDrag.first,
+                        end = 10.dp - currentHorizontalDrag.second
+                    )
 
             ) {
                 LineChart(
-                    yValues= yPoints,
+                    yValues= chartUiState.yValues,
                     appearance = ChartSettings(
                         chartDescription = ChartDescription(
                             chartName = "Successful",
@@ -107,7 +177,7 @@ fun DrawGraph(
                         colorAreaUnderChart = Pair(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
                         isCircleVisible = true,
                         circleColor = MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.background,
+                        backgroundColor = MaterialTheme.colorScheme.surface,
                         axisFontSize = 40,
                         axisFontColor = MaterialTheme.colorScheme.onBackground
                     )
@@ -118,11 +188,11 @@ fun DrawGraph(
 }
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun BottomNavigationBarPreview() {
-    ChartPlannerTheme {
-        DrawGraph()
-    }
-}
+//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Composable
+//fun BottomNavigationBarPreview() {
+//    ChartPlannerTheme {
+//        DrawGraph()
+//    }
+//}
