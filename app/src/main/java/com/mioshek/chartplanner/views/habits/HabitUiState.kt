@@ -20,7 +20,7 @@ data class HabitUiState(
     val name: String = "",
     val description: String? = "",
     val done: Boolean = false,
-    val date: String? = null,
+    val date: Long? = null,
     val intervalDays: Int? = null, // 1 means everyday, 0 means once
     val selected: Boolean = false
 )
@@ -85,7 +85,7 @@ class HabitViewModel(
                 }
 
                 5 -> {
-                    newDate = fieldValue as String
+                    newDate = fieldValue as Long
                 }
 
                 6 -> {

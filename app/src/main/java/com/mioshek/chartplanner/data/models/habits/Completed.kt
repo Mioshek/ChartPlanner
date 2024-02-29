@@ -21,5 +21,5 @@ data class Completed(
 
     val habitId: Int,
 
-    val date: String,
+    val date: Long,
 )

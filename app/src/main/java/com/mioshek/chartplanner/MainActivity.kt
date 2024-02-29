@@ -3,6 +3,7 @@ package com.mioshek.chartplanner
 import android.content.res.Configuration
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -33,23 +34,21 @@ class MainActivity : ComponentActivity() {
             }
         }
         val context = this
+
         lifecycleScope.launch {
             try {
-                // Call the insert function from the DAO
                 AppDatabase.getDatabase(context).settingsDao.insert(
                     Setting(
                         settingName = "Init Date",
                         value = "${System.currentTimeMillis()/1000}"
                     )
                 )
-                // Insert successful
             } catch (e: Exception) {
                 // Handle exceptions (e.g., SQLiteConstraintException if the record already exists)
                 // Insert failed
                 e.printStackTrace()
             }
         }
-
 
         super.onCreate(savedInstanceState)
 

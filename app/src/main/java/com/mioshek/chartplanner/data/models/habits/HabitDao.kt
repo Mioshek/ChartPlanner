@@ -18,7 +18,7 @@ interface HabitDao{
         h_id: Int,
         name: String,
         description: String,
-        date: String,
+        date: Long,
         intervalDays: Int,
     )
 
@@ -31,11 +31,14 @@ interface HabitDao{
     @Query("SELECT * FROM habits ORDER BY name ASC")
     fun getAll(): Flow<List<Habit>>
 
+//    @Query("SELECT *" +
+//            "FROM HABITS " +
+//            "WHERE (JULIANDAY(substr(:date, 7, 4) || '-' || substr(:date, 4, 2) || '-' " +
+//            "|| substr(:date, 1, 2)) - julianday(substr(date, 7, 4) || '-' || substr(date, 4, 2) " +
+//            "|| '-' || substr(date, 1, 2))) % intervalDays = 0\n or (intervalDays == 0 and date = :date)" +
+//            "ORDER BY name ASC") 1 day -> 86400s When current time in milis devided by 1k and 86400 then I get days since beginning of 1970
     @Query("SELECT *" +
-            "FROM HABITS " +
-            "WHERE (JULIANDAY(substr(:date, 7, 4) || '-' || substr(:date, 4, 2) || '-' " +
-            "|| substr(:date, 1, 2)) - julianday(substr(date, 7, 4) || '-' || substr(date, 4, 2) " +
-            "|| '-' || substr(date, 1, 2))) % intervalDays = 0\n or (intervalDays == 0 and date = :date)" +
-            "ORDER BY name ASC")
-    fun getAllByDate(date: String): Flow<List<Habit>>
+            "FROM habits " +
+            "WHERE ((:currentDate  / 86400 - date / 86400) % intervalDays = 0 AND date <= :currentDate) OR (intervalDays == 0 AND :currentDate  / 86400 = date / 86400)")
+    fun getAllByDate(currentDate: Long): Flow<List<Habit>>
 }

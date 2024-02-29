@@ -19,7 +19,6 @@ fun CalendarPicker(
     navController: NavController,
 ){
     val currentYear = Calendar.getInstance()[Calendar.YEAR]
-    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
     val datePickerState = rememberDatePickerState(
         yearRange = IntRange(currentYear, currentYear + 20)
     )
@@ -29,9 +28,9 @@ fun CalendarPicker(
         confirmButton = {
             Button(onClick = {
                 val date: Long = if (datePickerState.selectedDateMillis != null){
-                    datePickerState.selectedDateMillis!!
+                    datePickerState.selectedDateMillis!! / 1000
                 } else{
-                    System.currentTimeMillis()
+                    System.currentTimeMillis() / 1000
                 }
 
                 navController.previousBackStackEntry?.savedStateHandle?.set("date", date)

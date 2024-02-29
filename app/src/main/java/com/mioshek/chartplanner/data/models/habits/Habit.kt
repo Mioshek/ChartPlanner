@@ -9,7 +9,7 @@ import com.mioshek.chartplanner.views.habits.HabitUiState
 data class Habit(
     val name: String,
     val description: String,
-    val date: String,
+    val date: Long,
     val intervalDays: Int,
 
     @PrimaryKey(autoGenerate = true)

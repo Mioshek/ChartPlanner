@@ -3,23 +3,16 @@ package com.mioshek.chartplanner.views.habits
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.Completed
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
-import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import com.mioshek.chartplanner.data.models.settings.SettingsRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 
 
@@ -40,7 +33,7 @@ class ListHabitsViewModel(
     private var logCallbackListHabits: LogCallbackListHabits? = null
 
     @Composable
-    fun updateListUi(date: String){
+    fun UpdateListUi(date: Long){
         val extractedHabits = habitsRepository.getAllHabitsByDateStream(date).collectAsState(null).value
         val extractedCompleted = completedRepository.getByDate(date).collectAsState(null).value
         if (extractedHabits != null){
@@ -76,20 +69,16 @@ class ListHabitsViewModel(
         }
     }
 
-    suspend fun completeHabit(hid: Int, chosenDate: String){
-        val now = DateFormatter.sdf.format(System.currentTimeMillis()).substring(0,10)
-
-        if (chosenDate == now){
-            completedRepository.insert(
-                Completed(
-                    habitId = hid,
-                    date = now,
-                )
+    suspend fun completeHabit(hid: Int, chosenDate: Long){
+        completedRepository.insert(
+            Completed(
+                habitId = hid,
+                date = chosenDate
             )
-        }
+        )
     }
 
-    suspend fun tickUndoneHabit(date: String, hid: Int){
+    suspend fun tickUndoneHabit( hid: Int, date: Long){
         completedRepository.delete(date, hid)
     }
 

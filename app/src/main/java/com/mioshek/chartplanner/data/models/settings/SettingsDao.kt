@@ -19,7 +19,7 @@ interface SettingsDao{
             "WHERE settingName = :settingName")
     fun getSetting(settingName: String): Setting
 
-    @Query("INSERT OR IGNORE INTO settings (settingName, value)\n" +
+    @Query("INSERT OR IGNORE INTO settings (settingName, value)" +
             "VALUES (:settingName, :value);")
     suspend fun update(settingName: String, value: String)
 

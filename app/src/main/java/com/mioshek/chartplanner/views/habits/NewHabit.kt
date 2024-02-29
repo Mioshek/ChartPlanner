@@ -125,14 +125,11 @@ fun NewHabit(
             // Changes in date listener
             LaunchedEffect(key1 = Unit){
                 val longDate = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Long?>("date")?.value
-                if (longDate != null){
-                    val date = DateFormatter.sdf.format(longDate).substring(0,10)
-                    if (habit.value.date != date){
-                        habitViewModel.updateState(
-                            date,
-                            5
-                        )
-                    }
+                if (longDate != null && habit.value.date != longDate){
+                    habitViewModel.updateState(
+                        longDate,
+                        5
+                    )
                 }
             }
 
@@ -140,7 +137,7 @@ fun NewHabit(
                 modifier = modifier.fillMaxWidth()
             ){
                 OutlinedTextField(
-                    value = habit.value.date?.substring(0,10) ?: "",
+                    value = habit.value.date?.let { DateFormatter.sdf.format(it * 1000).substring(0, 10) } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     modifier = modifier

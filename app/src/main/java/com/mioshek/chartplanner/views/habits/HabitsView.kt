@@ -2,7 +2,6 @@ package com.mioshek.chartplanner.views.habits
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -66,7 +65,7 @@ fun ListHabits(
     val verticalScroll = rememberScrollState(0)
     var choosingDate by remember { mutableStateOf(true)}
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
-    var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis() / 1000) }
     val chosenDate = navController.currentBackStackEntry?.savedStateHandle?.get<Long?>("date")
     if (chosenDate != null && choosingDate){
         displayedDate = chosenDate
@@ -85,12 +84,14 @@ fun ListHabits(
                         if (changeDate) {
                             when {
                                 x > 0 -> {
-                                    displayedDate -= (1000 * 60 * 60 * 24)
-                                    changeDate = false
+                                    if (displayedDate > 1704150000){ // 01.01.2024 12:00 AM
+                                        displayedDate -= (60 * 60 * 24)
+                                        changeDate = false
+                                    }
                                 }
 
                                 x < 0 -> {
-                                    displayedDate += (1000 * 60 * 60 * 24)
+                                    displayedDate += (60 * 60 * 24)
                                     changeDate = false
                                 }
                             }
@@ -103,79 +104,68 @@ fun ListHabits(
                 )
             }
     ){
-        habitsViewModel.updateListUi(DateFormatter.sdf.format(displayedDate).substring(0,10))
+        habitsViewModel.UpdateListUi(displayedDate)
         val habitsList = listHabitsUiState.habits
 
-        if (habitsList.isNotEmpty()) {
-            Column(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .verticalScroll(verticalScroll),
-                horizontalAlignment = Alignment.CenterHorizontally,
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .verticalScroll(verticalScroll),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Card(
+                elevation = CardDefaults.cardElevation(1.dp),
+                modifier = modifier.fillMaxWidth(),
             ) {
-                Card(
-                    elevation = CardDefaults.cardElevation(1.dp),
-                    modifier = modifier.fillMaxWidth(),
+                Row(
+                    modifier = Modifier.padding(5.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(5.dp)
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier
+                            .weight(2f)
+                            .clickable {
+                                displayedDate -= (60 * 60 * 24)
+                            }) {
+                        Icon(Icons.Default.KeyboardArrowLeft, "Left")
+                    }
+
+                    Text(
+                        "Date: ${DateFormatter.sdf.format(displayedDate * 1000).substring(0, 10)}",
+                        modifier = Modifier
+                            .weight(3f)
+                            .align(Alignment.CenterVertically)
+                            .clickable {
+                                choosingDate = false
+                                navController.navigate("habits/calendar")
+                            }
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.onBackground.copy(0.5f),
+                                shape = RoundedCornerShape(8.dp) // Adjust the corner radius as needed
+                            )
+                            .padding(start = 6.dp, bottom = 2.dp, end = 0.dp, top = 2.dp)
+                    )
+
+                    Box(contentAlignment = Alignment.CenterEnd,
+                        modifier = Modifier
+                            .weight(2f)
+                            .clickable {
+                                displayedDate += (60 * 60 * 24)
+                            }
                     ) {
-                        Box(
-                            contentAlignment = Alignment.CenterStart,
-                            modifier = Modifier
-                                .weight(2f)
-                                .clickable {
-                                    displayedDate -= (1000 * 60 * 60 * 24)
-                                }) {
-                            Icon(Icons.Default.KeyboardArrowLeft, "Left")
-                        }
-
-                        Text(
-                            "Date: ${DateFormatter.sdf.format(displayedDate).substring(0, 10)}",
-                            modifier = Modifier
-                                .weight(3f)
-                                .align(Alignment.CenterVertically)
-                                .clickable {
-                                    choosingDate = false
-                                    navController.navigate("habits/calendar")
-                                }
-                                .border(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.onBackground.copy(0.5f),
-                                    shape = RoundedCornerShape(8.dp) // Adjust the corner radius as needed
-                                )
-                                .padding(start = 6.dp, bottom = 2.dp, end = 0.dp, top = 2.dp)
-                        )
-
-                        Box(contentAlignment = Alignment.CenterEnd,
-                            modifier = Modifier
-                                .weight(2f)
-                                .clickable {
-                                    displayedDate += (1000 * 60 * 60 * 24)
-                                }
-                        ) {
-                            Icon(Icons.Default.KeyboardArrowRight, "Right")
-                        }
+                        Icon(Icons.Default.KeyboardArrowRight, "Right")
                     }
                 }
-
-                Spacer(modifier.padding(10.dp))
-
-                habitsList.forEach { value ->
-                    HabitElement(value, navController, habitsViewModel, DateFormatter.sdf.format(displayedDate).substring(0,10))
-                }
             }
-            NewHabitNavigation(navController, "New")
+
+            Spacer(modifier.padding(10.dp))
+
+            habitsList.forEach { value ->
+                HabitElement(value, navController, habitsViewModel, displayedDate)
+            }
         }
-        else{
-            Text(
-                text = "Habit List Empty",
-                fontSize = MaterialTheme.typography.displayMedium.fontSize,
-            )
-            Spacer(modifier = modifier.padding(10.dp))
-            navController.currentBackStackEntry?.savedStateHandle?.set("isInsertedToDb", false)
-            NewHabitNavigation(navController, "New")
-        }
+        NewHabitNavigation(navController, "New")
     }
 }
 
@@ -184,7 +174,7 @@ fun HabitElement(
     habit: HabitUiState,
     navController: NavController,
     habitsViewModel: ListHabitsViewModel,
-    date: String,
+    date: Long,
     modifier: Modifier = Modifier
 ){
     Card(
@@ -216,7 +206,6 @@ fun HabitElement(
                 )
             },
     ) {
-        val displayedNextOccurring = habit.date?.substring(0,10)
         val coroutineScope = rememberCoroutineScope()
 
         Box(
@@ -242,7 +231,7 @@ fun HabitElement(
                         .clickable {
                             coroutineScope.launch {
                                 if (habit.done) {
-                                    habitsViewModel.tickUndoneHabit(date, habit.id!!)
+                                    habitsViewModel.tickUndoneHabit(habit.id!!, date)
                                 } else {
                                     habitsViewModel.completeHabit(habit.id!!, date)
                                 }
@@ -336,7 +325,6 @@ fun NewHabitNavigation(
             }
         }
     }
-
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -47,18 +47,8 @@ class ChartViewModel(
     }
 
     suspend fun calculateValuesForChart(): Boolean {
-        val yValues = mutableListOf<Float>()
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.YEAR, 2024)
-        // If the month is set to current month then it iterates from the end of this month. For example 2 -> from 01.03.YYYY
-//        calendar.set(Calendar.MONTH, _chartUiState.value.timestamp -1)
         val start = Instant.now().toEpochMilli()
-        for (day in 1.._chartUiState.value.maxDay){
-            calendar.set(Calendar.DAY_OF_MONTH, day)
-            val formattedDay = DateFormatter.sdf.format(calendar.timeInMillis).substring(0,10)
-//            Log.d("Day", formattedDay)
-            yValues.add(calculateDay(formattedDay))
-        }
+        val yValues = completedRepository.getChartStatistics(19723,365).toMutableList()
         Log.d("Time taken", "${(Instant.now().toEpochMilli() - start)/1000f} s")
         _chartUiState.update { currentState ->
             currentState.copy(
@@ -68,13 +58,5 @@ class ChartViewModel(
             )
         }
         return false
-    }
-
-    private suspend fun calculateDay(day: String): Float {
-        val allDayHabits = habitsRepository.getAllHabitsByDateStream(day).first().size
-        val extractedCompleted = completedRepository.getByDate(day).first().size
-        return if (allDayHabits > 0 && extractedCompleted > 0){
-            extractedCompleted / allDayHabits.toFloat() * 100
-        } else 0f
     }
 }
