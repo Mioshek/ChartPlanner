@@ -3,7 +3,6 @@ package com.mioshek.chartplanner.views.habits
 import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -60,7 +61,6 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun NewHabit(
     navController: NavController,
@@ -72,11 +72,12 @@ fun NewHabit(
     val habit = habitViewModel.habitUiState.collectAsState()
     var updatedFromDb = navController.previousBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("isInsertedToDb")?.value ?: true
     val focusManager = LocalFocusManager.current
+    val scrollState = rememberScrollState()
     val source = remember{ MutableInteractionSource()}
     var isSourcePressed by remember { mutableStateOf(false) }// second argument -> was clicked?
 
     if (habitId != null && !updatedFromDb){
-        coroutineScope.launch {
+        LaunchedEffect(key1 = null){
             habitViewModel.getHabitFromDb(habitId)
         }
         navController.previousBackStackEntry?.savedStateHandle?.set("isInsertedToDb", true)
@@ -89,13 +90,13 @@ fun NewHabit(
             .clickable {
                 focusManager.clearFocus()
             }
+            .verticalScroll(scrollState)
     ){
         Box(
             modifier = modifier
                 .background(MaterialTheme.colorScheme.surface, shape = CircleShape)
-                .padding(8.dp)
+                .padding(20.dp)
                 .align(Alignment.TopStart)
-                .offset(20.dp, 20.dp)
                 .clickable {
                     navController.popBackStack()
                 }
@@ -111,7 +112,7 @@ fun NewHabit(
             verticalArrangement = Arrangement.Center,
             modifier = modifier
                 .fillMaxSize()
-                .padding(start = 30.dp, end = 30.dp)
+                .padding(start = 30.dp, end = 30.dp, top = 60.dp)
         ){
             OutlinedTextField(
                 habit.value.name,
@@ -125,7 +126,7 @@ fun NewHabit(
             // Changes in date listener
             LaunchedEffect(key1 = Unit){
                 val longDate = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Long?>("date")?.value
-                if (longDate != null && habit.value.date != longDate){
+                if (longDate != null && habit.value.firstDate != longDate){
                     habitViewModel.updateState(
                         longDate,
                         5
@@ -137,7 +138,7 @@ fun NewHabit(
                 modifier = modifier.fillMaxWidth()
             ){
                 OutlinedTextField(
-                    value = habit.value.date?.let { DateFormatter.sdf.format(it * 1000).substring(0, 10) } ?: "",
+                    value = habit.value.firstDate?.let { DateFormatter.sdf.format(it * 1000 - DateFormatter.timezoneOffset).substring(0, 10) } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     modifier = modifier
@@ -156,7 +157,10 @@ fun NewHabit(
                     onClick = {
                         navController.navigate(route = "habits/new/calendar")
                     },
-                    modifier.fillMaxWidth().weight(1f).align(Alignment.CenterVertically),
+                    modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .align(Alignment.CenterVertically),
                 ){
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.calendar_check),
@@ -178,10 +182,12 @@ fun NewHabit(
                 onValueChange = {
                     habitViewModel.updateState(it, 3)},
                 placeholder = {Text("Description")},
-                modifier = modifier.padding(bottom = 10.dp).fillMaxWidth(),
+                modifier = modifier
+                    .padding(bottom = 10.dp)
+                    .fillMaxWidth(),
                 singleLine = false,
-                minLines = 5,
-                maxLines = 10
+                minLines = 4,
+                maxLines = 500
             )
             NavigationButtons(habitViewModel, habitId, habit, coroutineScope, navController)
         }
@@ -213,10 +219,10 @@ fun NumberPicker(
                 habitViewModel.habitUiState.value.intervalDays ?: 0,
                 onValueChange = {
                     if (it == "Don't Repeat"){
-                        habitViewModel.updateState(0, 6)
+                        habitViewModel.updateState(0, 7)
                     }
                     else{
-                        habitViewModel.updateState(it.toInt(), 6)
+                        habitViewModel.updateState(it.toInt(), 7)
                     }
                 },
                 fontSize = 20.sp,

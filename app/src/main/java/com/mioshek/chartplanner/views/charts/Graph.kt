@@ -1,5 +1,6 @@
 import android.content.res.Configuration
 import android.graphics.Paint
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,10 +43,12 @@ fun LineChart(
             modifier = modifier
                 .fillMaxSize()
         ) {
-            if (yValues.size > 6){
+            if (yValues.isNotEmpty()){
                 drawAreaUnderChart(xValues, yValues, appearance.colorAreaUnderChart)
                 drawLineChart(xValues, yValues, appearance.lineColor, appearance.lineThickness.toPx())
-                drawPoints(xValues, yValues, appearance.circleColor, 2.dp)
+                if(appearance.isCircleVisible){
+                    drawPoints(xValues, yValues, appearance.circleColor, 2.dp)
+                }
             }
             drawAxes(xValues, yValues, appearance.graphAxisColor, appearance.axisFontColor, appearance.axisFontSize.toDp(), appearance.lineThickness)
             drawChartDescription(appearance.chartDescription)
@@ -88,13 +91,13 @@ private fun DrawScope.drawChartDescription(
         drawContext.canvas.nativeCanvas.save()
 
         // Rotate the canvas for each character
-        drawContext.canvas.nativeCanvas.rotate(-90f, -100f, y)
+        drawContext.canvas.nativeCanvas.rotate(-90f, 0f, 0f)
 
         // Draw the rotated character
         drawContext.canvas.nativeCanvas.drawText(
             char.toString(),
-            -100f,
-            y,
+            -y - 60f,
+            -80f,
             Paint().apply {
                 color = description.axesNamesColor.toArgb()
                 textAlign = Paint.Align.CENTER
@@ -104,7 +107,7 @@ private fun DrawScope.drawChartDescription(
 
         drawContext.canvas.nativeCanvas.restore()
 
-        y += 20 + description.axesNamesSize.value
+        y += description.axesNamesSize.value + 10f
     }
 
 }
@@ -139,7 +142,7 @@ private fun DrawScope.drawAxes(
         var partitionsX = size.width / entryWidth.value
         if (partitionsX > xValues.size) {partitionsX = xValues.size.toFloat()
         }
-        val xGap = size.width / (partitionsX -1)
+        val xGap = size.width / partitionsX
         val xNumberGap = yValues.size / partitionsX
         var j = 0
         var x = 0f
@@ -168,7 +171,7 @@ private fun DrawScope.drawAxes(
         // Draw y-axis labels
         val max: Int = yValues.max().toInt()
         val min: Int = yValues.min().toInt()
-        val entryHeight = axisLabelSize + 50.dp
+        val entryHeight = axisLabelSize + 80.dp
         var partitionsY = size.height / entryHeight.value
         if (partitionsY > yValues.size) {partitionsY = yValues.size.toFloat()}
         val yGap = size.height / partitionsY
@@ -192,7 +195,7 @@ private fun DrawScope.drawAxes(
 
             drawContext.canvas.nativeCanvas.drawText(
                 heightLabel.toInt().toString() /*+ "%"*/,
-                -axisLabelSize.toPx() - 8f,
+                -axisLabelSize.toPx() + 5f,
                 y + axisLabelSize.toPx() / 2,
                 Paint().apply {
                     color = axisLabelColor.toArgb()

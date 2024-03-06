@@ -9,7 +9,8 @@ import com.mioshek.chartplanner.views.habits.HabitUiState
 data class Habit(
     val name: String,
     val description: String,
-    val date: Long,
+    val firstDate: Long,
+    val lastDate: Long,
     val intervalDays: Int,
 
     @PrimaryKey(autoGenerate = true)
@@ -17,6 +18,6 @@ data class Habit(
     val hid: Int = 0
 )
 
-fun Habit.toHabitUiState(): HabitUiState {
-    return HabitUiState(hid, name, description, false, date, intervalDays)
-}
+//fun Habit.toHabitUiState(): HabitUiState {
+//    return HabitUiState(hid, name, description, false, date, intervalDays)
+//}

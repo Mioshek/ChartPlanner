@@ -31,7 +31,8 @@ class OfflineHabitsRepository(private val habitDao: HabitDao) : HabitsRepository
         habit.hid,
         habit.name,
         habit.description,
-        habit.date,
+        habit.firstDate,
+        habit.lastDate,
         habit.intervalDays
     )
 }

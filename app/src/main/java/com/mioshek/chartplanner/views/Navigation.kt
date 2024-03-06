@@ -33,7 +33,7 @@ fun ChartPlannerNavigation(navController: NavHostController) {
             }
 
             composable(BottomNavigationItem.Settings.route) {
-                Settings()
+                Settings(navController)
             }
         }
 

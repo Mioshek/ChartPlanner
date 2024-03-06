@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.Completed
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
@@ -13,6 +14,8 @@ import com.mioshek.chartplanner.data.models.settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 
 
@@ -50,7 +53,7 @@ class ListHabitsViewModel(
 
                 readyHabits.add(
                     HabitUiState(
-                        habit.hid, habit.name, habit.description, done, habit.date, habit.intervalDays
+                        habit.hid, habit.name, habit.description, done, habit.firstDate, habit.lastDate, habit.intervalDays
                     )
                 )
             }
@@ -69,17 +72,24 @@ class ListHabitsViewModel(
         }
     }
 
-    suspend fun completeHabit(hid: Int, chosenDate: Long){
-        completedRepository.insert(
-            Completed(
-                habitId = hid,
-                date = chosenDate
-            )
-        )
-    }
+    suspend fun changeTickState(hid: Int, date: Long, previousState: Boolean){
+        val completeAnytime = settingsRepository.getSetting("AllowCompletingHabitsAnytime").first().value.toBoolean()
+        val today = System.currentTimeMillis() /1000// Gets starting hours of this day
 
-    suspend fun tickUndoneHabit( hid: Int, date: Long){
-        completedRepository.delete(date, hid)
+        if (completeAnytime || (DateFormatter.sdf.format(date * 1000).substring(0,10) == DateFormatter.sdf.format(today * 1000).substring(0,10)) ){
+
+            if (previousState){
+                completedRepository.delete(date, hid)
+            }
+            else{
+                completedRepository.insert(
+                    Completed(
+                        habitId = hid,
+                        date = date
+                    )
+                )
+            }
+        }
     }
 
 //    fun removeHabit(id: Int){

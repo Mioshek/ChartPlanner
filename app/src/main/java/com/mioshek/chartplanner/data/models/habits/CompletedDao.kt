@@ -41,9 +41,9 @@ interface CompletedDao{
             "        :startingDay + n AS displayedDate," +
             "        COUNT(" +
             "            CASE" +
-            "                WHEN target_timestamp + n - H.date / 86400 >= 0" +
-            "                     AND ((target_timestamp + n - h.date /86400) % h.intervalDays = 0" +
-            "                     OR (intervalDays = 0 AND target_timestamp + n - h.date /86400 = 0))" +
+            "                WHEN target_timestamp + n - H.firstDate / 86400 >= 0" +
+            "                     AND ((target_timestamp + n - h.firstDate /86400) % h.intervalDays = 0" +
+            "                     OR (intervalDays = 0 AND target_timestamp + n - h.firstDate /86400 = 0))" +
             "                THEN 1" +
             "                ELSE NULL" +
             "            END" +

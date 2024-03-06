@@ -12,13 +12,14 @@ interface HabitDao{
     suspend fun insert(habit: Habit)
 
     @Query("UPDATE habits" +
-            " SET name=:name, description=:description, date=:date, intervalDays=:intervalDays" +
+            " SET name=:name, description=:description, firstDate=:firstDate, lastDate=:lastDate, intervalDays=:intervalDays" +
             " WHERE hid == :h_id")
     suspend fun update(
         h_id: Int,
         name: String,
         description: String,
-        date: Long,
+        firstDate: Long,
+        lastDate: Long,
         intervalDays: Int,
     )
 
@@ -31,14 +32,9 @@ interface HabitDao{
     @Query("SELECT * FROM habits ORDER BY name ASC")
     fun getAll(): Flow<List<Habit>>
 
-//    @Query("SELECT *" +
-//            "FROM HABITS " +
-//            "WHERE (JULIANDAY(substr(:date, 7, 4) || '-' || substr(:date, 4, 2) || '-' " +
-//            "|| substr(:date, 1, 2)) - julianday(substr(date, 7, 4) || '-' || substr(date, 4, 2) " +
-//            "|| '-' || substr(date, 1, 2))) % intervalDays = 0\n or (intervalDays == 0 and date = :date)" +
-//            "ORDER BY name ASC") 1 day -> 86400s When current time in milis devided by 1k and 86400 then I get days since beginning of 1970
-    @Query("SELECT *" +
+    @Query("SELECT * " +
             "FROM habits " +
-            "WHERE ((:currentDate  / 86400 - date / 86400) % intervalDays = 0 AND date <= :currentDate) OR (intervalDays == 0 AND :currentDate  / 86400 = date / 86400)")
+            "WHERE ((:currentDate  / 86400 - firstDate / 86400) % intervalDays = 0 AND firstDate <= :currentDate " +
+            "AND lastDate >= :currentDate) OR (intervalDays == 0 AND :currentDate  / 86400 = firstDate / 86400)")
     fun getAllByDate(currentDate: Long): Flow<List<Habit>>
 }

@@ -2,6 +2,7 @@ package com.mioshek.chartplanner.views.habits
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -65,8 +67,9 @@ fun ListHabits(
     val verticalScroll = rememberScrollState(0)
     var choosingDate by remember { mutableStateOf(true)}
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
-    var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis() / 1000) }
+    var displayedDate by remember { mutableLongStateOf(System.currentTimeMillis()/1000) }
     val chosenDate = navController.currentBackStackEntry?.savedStateHandle?.get<Long?>("date")
+
     if (chosenDate != null && choosingDate){
         displayedDate = chosenDate
         choosingDate = false
@@ -84,7 +87,7 @@ fun ListHabits(
                         if (changeDate) {
                             when {
                                 x > 0 -> {
-                                    if (displayedDate > 1704150000){ // 01.01.2024 12:00 AM
+                                    if (displayedDate > 1704067200 - DateFormatter.timezoneOffset / 1000) { // 01.01.2024 12:00 AM
                                         displayedDate -= (60 * 60 * 24)
                                         changeDate = false
                                     }
@@ -99,12 +102,11 @@ fun ListHabits(
                     },
                     onDragEnd = {
                         changeDate = true
-
                     }
                 )
             }
     ){
-        habitsViewModel.UpdateListUi(displayedDate)
+        habitsViewModel.UpdateListUi(displayedDate + DateFormatter.timezoneOffset / 1000)
         val habitsList = listHabitsUiState.habits
 
         Column(
@@ -123,7 +125,7 @@ fun ListHabits(
                     Box(
                         contentAlignment = Alignment.CenterStart,
                         modifier = Modifier
-                            .weight(2f)
+                            .weight(1f)
                             .clickable {
                                 displayedDate -= (60 * 60 * 24)
                             }) {
@@ -132,9 +134,9 @@ fun ListHabits(
 
                     Text(
                         "Date: ${DateFormatter.sdf.format(displayedDate * 1000).substring(0, 10)}",
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
                             .weight(3f)
-                            .align(Alignment.CenterVertically)
                             .clickable {
                                 choosingDate = false
                                 navController.navigate("habits/calendar")
@@ -144,12 +146,12 @@ fun ListHabits(
                                 MaterialTheme.colorScheme.onBackground.copy(0.5f),
                                 shape = RoundedCornerShape(8.dp) // Adjust the corner radius as needed
                             )
-                            .padding(start = 6.dp, bottom = 2.dp, end = 0.dp, top = 2.dp)
+                            .padding(5.dp)
                     )
 
                     Box(contentAlignment = Alignment.CenterEnd,
                         modifier = Modifier
-                            .weight(2f)
+                            .weight(1f)
                             .clickable {
                                 displayedDate += (60 * 60 * 24)
                             }
@@ -229,11 +231,12 @@ fun HabitElement(
                     contentDescription = "Completed",
                     modifier = Modifier
                         .clickable {
+                            Log.d("Fucked Date", DateFormatter.sdf.format(date * 1000))
                             coroutineScope.launch {
                                 if (habit.done) {
-                                    habitsViewModel.tickUndoneHabit(habit.id!!, date)
+                                    habitsViewModel.changeTickState(habit.id!!, date, true)
                                 } else {
-                                    habitsViewModel.completeHabit(habit.id!!, date)
+                                    habitsViewModel.changeTickState(habit.id!!, date, false)
                                 }
                             }
                         }

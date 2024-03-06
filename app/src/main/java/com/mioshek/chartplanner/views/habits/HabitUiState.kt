@@ -3,8 +3,6 @@ package com.mioshek.chartplanner.views.habits
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.mioshek.chartplanner.assets.formats.DateFormatter
-import com.mioshek.chartplanner.data.models.habits.Completed
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.Habit
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
@@ -20,7 +18,8 @@ data class HabitUiState(
     val name: String = "",
     val description: String? = "",
     val done: Boolean = false,
-    val date: Long? = null,
+    val firstDate: Long? = null,
+    val lastDate: Long? = null,
     val intervalDays: Int? = null, // 1 means everyday, 0 means once
     val selected: Boolean = false
 )
@@ -30,7 +29,8 @@ fun HabitUiState.toHabit(): Habit {
         return Habit(
             name = name,
             description = description!!,
-            date =  date!!,
+            firstDate =  firstDate!!,
+            lastDate = lastDate ?: Long.MAX_VALUE,
             intervalDays = intervalDays!!
         )
     }
@@ -38,7 +38,8 @@ fun HabitUiState.toHabit(): Habit {
         hid = id,
         name = name,
         description = description!!,
-        date =  date!!,
+        firstDate = firstDate!!,
+        lastDate = lastDate ?: Long.MAX_VALUE,
         intervalDays = intervalDays ?: 0
     )
 }
@@ -59,11 +60,12 @@ class HabitViewModel(
         _habitUiState.update { currentState ->
             var elementToUpdate = _habitUiState.asStateFlow().value
 
-            var newName = elementToUpdate?.name
-            var newDescription = elementToUpdate?.description
-            var newCompleted = elementToUpdate?.done
-            var newDate = elementToUpdate?.date
-            var newIntervalDays = elementToUpdate?.intervalDays
+            var newName = elementToUpdate.name
+            var newDescription = elementToUpdate.description
+            var newCompleted = elementToUpdate.done
+            var newFirstDate = elementToUpdate.firstDate
+            var newLastDate = elementToUpdate.lastDate
+            var newIntervalDays = elementToUpdate.intervalDays
 
             when(fieldId){
                 2 -> {
@@ -85,10 +87,14 @@ class HabitViewModel(
                 }
 
                 5 -> {
-                    newDate = fieldValue as Long
+                    newFirstDate = fieldValue as Long
                 }
 
-                6 -> {
+                6 ->{
+                    newLastDate = fieldValue as Long
+                }
+
+                7 -> {
                     newIntervalDays  = fieldValue as Int?
                 }
 
@@ -97,10 +103,11 @@ class HabitViewModel(
                 }
             }
             currentState.copy(
-                name = newName.toString(),
+                name = newName,
                 description = newDescription,
-                done = newCompleted!!,
-                date = newDate,
+                done = newCompleted,
+                firstDate = newFirstDate,
+                lastDate = newLastDate,
                 intervalDays = newIntervalDays!!
             )
         }
@@ -114,7 +121,8 @@ class HabitViewModel(
                     id = updatedHabit.hid,
                     name = updatedHabit.name,
                     description = updatedHabit.description,
-                    date = updatedHabit.date,
+                    firstDate = updatedHabit.firstDate,
+                    lastDate = updatedHabit.lastDate,
                     intervalDays = updatedHabit.intervalDays
                 )
             }
@@ -135,14 +143,7 @@ class HabitViewModel(
 
 
     fun checkIfAnyNull(): Boolean {
-        if(
-            _habitUiState.value.name == null ||
-            _habitUiState.value.date == null ||
-            _habitUiState.value.intervalDays == null
-        ){
-            return true
-        }
-        return false
+        return _habitUiState.value.firstDate == null || _habitUiState.value.intervalDays == null
     }
 }
 

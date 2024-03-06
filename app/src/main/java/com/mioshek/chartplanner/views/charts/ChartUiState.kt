@@ -1,9 +1,9 @@
 package com.mioshek.chartplanner.views.charts
 
 import android.util.Log
+import androidx.annotation.InspectableProperty
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import com.mioshek.chartplanner.data.models.settings.SettingsRepository
@@ -14,18 +14,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import java.time.Instant
 import java.time.LocalDate
-import java.util.Calendar
 
 data class ChartUiState(
-    val timestamp: Int = Calendar.MONTH,
-    val maxDay: Int = LocalDate.now().lengthOfYear(),
-    val yValues: MutableList<Float> = mutableListOf()
+    val timestamp: CustomTimestamp = CustomTimestamp.MONTH,
+    val numberOfDays: Int = LocalDate.now().lengthOfYear(),
+    val firstDay: Int = (System.currentTimeMillis()/ 86400000).toInt() - numberOfDays, // 01.01.2024
+    val yValues: MutableList<Float> = mutableListOf(),
 )
 
-enum class CustomTimestamp(val range: IntRange) {
-    WEEK(1..52),
-    MONTH(1..12),
-    YEAR(2024..Calendar.getInstance().get(Calendar.YEAR))
+enum class CustomTimestamp(val range: Int) {
+    WEEK(7),
+    MONTH(30),
+    YEAR(355)
+}
+
+fun CustomTimestamp.getRange(): Int{
+    return this.range
 }
 
 
@@ -38,25 +42,41 @@ class ChartViewModel(
     private val _chartUiState = MutableStateFlow(ChartUiState())
     val chartUiState: StateFlow<ChartUiState> = _chartUiState.asStateFlow()
 
-    fun changeTimestamp(timestamp: Calendar){
+    fun changeTimestamp(timestamp: CustomTimestamp, firstDay: Int){
         _chartUiState.update {currentState ->
             currentState.copy(
+                timestamp = timestamp,
+                firstDay = firstDay,
+                numberOfDays = timestamp.range
+            )
+        }
+    }
 
+    fun changeDays(add: Boolean){
+        if (_chartUiState.value.firstDay - _chartUiState.value.numberOfDays < 19723 && !add) return
+        _chartUiState.update {currentState ->
+            val newFirstDay = if (add) currentState.firstDay + currentState.numberOfDays else currentState.firstDay - currentState.numberOfDays
+            currentState.copy(
+                firstDay = newFirstDay
             )
         }
     }
 
     suspend fun calculateValuesForChart(): Boolean {
-        val start = Instant.now().toEpochMilli()
-        val yValues = completedRepository.getChartStatistics(19723,365).toMutableList()
-        Log.d("Time taken", "${(Instant.now().toEpochMilli() - start)/1000f} s")
+        val start = _chartUiState.value.firstDay
+        val yValues = completedRepository.getChartStatistics(start,_chartUiState.value.numberOfDays).toMutableList()
+        Log.d("Time taken", "${(Instant.now().toEpochMilli() - start /86400)/1000f} s")
         _chartUiState.update { currentState ->
             currentState.copy(
                 timestamp = currentState.timestamp,
-                maxDay = currentState.maxDay,
+                numberOfDays = currentState.numberOfDays,
                 yValues = yValues
             )
         }
         return false
+    }
+
+    suspend fun getSettingValue(name: String): String {
+        return settingsRepository.getSetting(name).first().value
     }
 }

@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +34,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
 
@@ -64,6 +66,7 @@ fun DrawGraph(
         }
     }
 
+    var dragEnded by remember { mutableStateOf(false)}
     Box(
         Modifier.pointerInput(Unit){
             detectDragGestures (
@@ -82,6 +85,10 @@ fun DrawGraph(
                                 currentHorizontalDrag.first - chartDrag.toDp(),
                                 currentHorizontalDrag.second + chartDrag.toDp()
                             )
+                            if (dragEnded){
+                                chartViewModel.changeDays(false)
+                            }
+                            dragEnded = false
                         }
                         x < 0 -> {
                             var chartDrag = if (-x < 20) -x else 20F
@@ -92,6 +99,10 @@ fun DrawGraph(
                                 currentHorizontalDrag.first + chartDrag.toDp(),
                                 currentHorizontalDrag.second - chartDrag.toDp()
                             )
+                            if(dragEnded){
+                                chartViewModel.changeDays(true)
+                            }
+                            dragEnded = false
                         }
                     }
                     when {
@@ -101,6 +112,7 @@ fun DrawGraph(
                 },
                 onDragEnd = {
                     currentHorizontalDrag = Pair(0.dp, 0.dp)
+                    dragEnded = true
                 }
             )
         }
@@ -130,6 +142,7 @@ fun DrawGraph(
                             .padding(top = 5.dp, bottom = 5.dp)
                             .clickable {
                                 selected = timestamp
+                                chartViewModel.changeTimestamp(timestamp, 19723)
                             }
                     ){
                         Text(
@@ -158,11 +171,18 @@ fun DrawGraph(
                     )
 
             ) {
+                var showCircles by remember {
+                    mutableStateOf(true)
+                }
+                LaunchedEffect(key1=null){
+                    showCircles = chartViewModel.getSettingValue("ShowCirclesAsGraphPoints").toBoolean()
+                }
+
                 LineChart(
                     yValues= chartUiState.yValues,
                     appearance = ChartSettings(
                         chartDescription = ChartDescription(
-                            chartName = "Successful",
+                            chartName = "${DateFormatter.sdf.format(chartUiState.firstDay.toLong() * 86400000L).substring(0,10)} - ${DateFormatter.sdf.format((chartUiState.firstDay.toLong() + chartUiState.numberOfDays)*86400000).substring(0,10)}",
                             chartNameSize = 20.dp,
                             chartNameColor =  MaterialTheme.colorScheme.onSurface,
                             xAxisName = "Days",
@@ -175,7 +195,7 @@ fun DrawGraph(
                         lineThickness = 1.dp,
                         hasColorAreaUnderChart = true,
                         colorAreaUnderChart = Pair(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
-                        isCircleVisible = true,
+                        isCircleVisible = showCircles,
                         circleColor = MaterialTheme.colorScheme.primary,
                         backgroundColor = MaterialTheme.colorScheme.surface,
                         axisFontSize = 40,

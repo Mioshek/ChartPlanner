@@ -9,6 +9,7 @@ import com.mioshek.chartplanner.HabitApplication
 import com.mioshek.chartplanner.views.charts.ChartViewModel
 import com.mioshek.chartplanner.views.habits.HabitViewModel
 import com.mioshek.chartplanner.views.habits.ListHabitsViewModel
+import com.mioshek.chartplanner.views.settings.SettingsViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -32,6 +33,15 @@ object AppViewModelProvider {
 
         initializer {
             ChartViewModel(
+                this.createSavedStateHandle(),
+                habitApplication().container.habitsRepository,
+                habitApplication().container.completedRepository,
+                habitApplication().container.settingsRepository
+            )
+        }
+
+        initializer {
+            SettingsViewModel(
                 this.createSavedStateHandle(),
                 habitApplication().container.habitsRepository,
                 habitApplication().container.completedRepository,

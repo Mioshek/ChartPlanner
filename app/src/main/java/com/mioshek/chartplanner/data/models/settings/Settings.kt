@@ -8,5 +8,6 @@ data class Setting(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val settingName: String,
-    val value: String
+    val value: String,
+    val visible: Int
 )
