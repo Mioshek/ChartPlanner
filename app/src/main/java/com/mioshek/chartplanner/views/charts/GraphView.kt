@@ -142,7 +142,7 @@ fun DrawGraph(
                             .padding(top = 5.dp, bottom = 5.dp)
                             .clickable {
                                 selected = timestamp
-                                chartViewModel.changeTimestamp(timestamp, 19723)
+                                chartViewModel.changeTimestamp(timestamp)
                             }
                     ){
                         Text(

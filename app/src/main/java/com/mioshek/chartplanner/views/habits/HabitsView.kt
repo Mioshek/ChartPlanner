@@ -3,6 +3,7 @@ package com.mioshek.chartplanner.views.habits
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,13 +25,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -57,7 +63,6 @@ import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun ListHabits(
     navController: NavController,
@@ -117,7 +122,7 @@ fun ListHabits(
         ) {
             Card(
                 elevation = CardDefaults.cardElevation(1.dp),
-                modifier = modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth()
             ) {
                 Row(
                     modifier = Modifier.padding(5.dp)
@@ -168,6 +173,9 @@ fun ListHabits(
             }
         }
         NewHabitNavigation(navController, "New")
+        if (listHabitsUiState.enterSelectMode){
+            DeleteSelectedIcon()
+        }
     }
 }
 
@@ -179,6 +187,12 @@ fun HabitElement(
     date: Long,
     modifier: Modifier = Modifier
 ){
+    val selection = if (habit.selected){
+        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+    }
+    else{
+        BorderStroke(0.dp, Color.Transparent)
+    }
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -187,16 +201,27 @@ fun HabitElement(
             disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(0.2f)
         ),
         elevation = CardDefaults.cardElevation(4.dp),
+        border = selection,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.2f)
             .padding(bottom = 10.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onLongPress = { habitsViewModel.changeSelection(true) },
-                    onTap = {
+                    onLongPress = {
                         if (habitsViewModel.habitUiState.value.enterSelectMode) {
                             habitsViewModel.changeSelection(false)
+                        } else {
+                            habitsViewModel.changeSelection(true)
+                        }
+                    },
+                    onTap = {
+                        if (habitsViewModel.habitUiState.value.enterSelectMode) {
+                            if (habit.selected) {
+                                //unselect
+                            } else {
+                                //select
+                            }
                         } else {
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 "isInsertedToDb",
@@ -328,6 +353,66 @@ fun NewHabitNavigation(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteSelectedIcon(
+    modifier: Modifier = Modifier
+){
+    var displayAlert by remember { mutableStateOf(false) }
+    Box(
+        modifier.fillMaxSize()
+    ){
+        Box(
+            modifier = modifier
+                .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                .padding(8.dp)
+                .align(Alignment.BottomStart)
+                .clickable {
+                    displayAlert = true
+                }
+        ){
+            Row{
+                Icon(
+                    Icons.Filled.Delete,
+                    contentDescription = "Add"
+                )
+                Text("Delete")
+            }
+        }
+        if (displayAlert){
+            AlertDialog(
+                icon = {
+                    Icon(Icons.Filled.Warning, contentDescription = "Example Icon")
+                },
+                title = {
+                    Text(text = "Delete")
+                },
+                text = {
+                    Text(text = "Do You Want To Delete All Selected Habits?")
+                },
+                onDismissRequest = { displayAlert = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+//                        onConfirmation()
+                        }
+                    ) {
+                        Text("Confirm")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { displayAlert = false}
+                    ) {
+                        Text("Dismiss")
+                    }
+                }
+            )
+        }
+    }
+
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
