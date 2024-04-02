@@ -1,7 +1,6 @@
 package com.mioshek.chartplanner.data.models.settings
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -9,10 +8,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SettingsDao{
 
-    @Query("INSERT INTO settings (settingName, value, visible) " +
-            "SELECT :settingName, :value, :visible " +
+    @Query("INSERT INTO settings (settingName, value, displayType, visible) " +
+            "SELECT :settingName, :value, :displayType, :visible " +
             "WHERE NOT EXISTS (SELECT 1 FROM SETTINGS WHERE settingName = :settingName);")
-    suspend fun createIfNotPresent(settingName: String, value: String, visible: Int)
+    suspend fun createIfNotPresent(settingName: String, value: String, displayType: Int?, visible: Int)
 
     @Upsert
     suspend fun upsert(setting: Setting)

@@ -1,9 +1,8 @@
 package com.mioshek.chartplanner.assets.presets
 
+import android.util.Log
 import com.mioshek.chartplanner.MainActivity
 import com.mioshek.chartplanner.data.models.AppDatabase
-import com.mioshek.chartplanner.data.models.settings.Setting
-import java.util.TimeZone
 
 class DefaultSettings {
 
@@ -11,10 +10,19 @@ class DefaultSettings {
         suspend fun loadPreset(context: MainActivity){
             val settingsDao = AppDatabase.getDatabase(context).settingsDao
             try {
+                // Init Language
+                settingsDao.createIfNotPresent(
+                    "InitLanguage",
+                    "EN",
+                    3,
+                    1
+                )
+
                 // Init Date
                 settingsDao.createIfNotPresent(
                     "InitDate",
                     "${System.currentTimeMillis()/1000}",
+                    0,
                     0
                 )
 
@@ -22,24 +30,28 @@ class DefaultSettings {
                 settingsDao.createIfNotPresent(
                     "InitFontSize",
                     "20",
+                    1,
                     1
                 )
 
                 settingsDao.createIfNotPresent(
-                    "ShowCirclesAsGraphPoints",
+                    "InitShowCirclesAsGraphPoints",
                     "True",
+                    2,
                     1
                 )
 
                 settingsDao.createIfNotPresent(
-                    "AllowCompletingHabitsAnytime",
+                    "InitAllowCompletingHabitsAnytime",
                     "false",
+                    2,
                     1
                 )
+
             } catch (e: Exception) {
                 // Handle exceptions (e.g., SQLiteConstraintException if the record already exists)
                 // Insert failed
-                e.printStackTrace()
+                Log.d("Load Preset Error", e.toString())
             }
         }
     }

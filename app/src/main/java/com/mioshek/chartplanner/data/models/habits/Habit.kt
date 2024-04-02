@@ -3,7 +3,6 @@ package com.mioshek.chartplanner.data.models.habits
 import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.mioshek.chartplanner.views.habits.HabitUiState
 
 @Entity(tableName = "habits")
 data class Habit(

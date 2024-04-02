@@ -24,6 +24,10 @@ interface CompletedDao{
             "WHERE date / 86400 = :date / 86400")
     fun getByDate(date: Long): Flow<List<Completed>>
 
+    @Query("SELECT *" +
+            "FROM completed")
+    fun getAllCompleted(): Flow<List<Completed>>
+
     @Query("WITH RECURSIVE TimestampFilter AS (" +
             "    SELECT :startingDay AS target_timestamp" +
             "), " +

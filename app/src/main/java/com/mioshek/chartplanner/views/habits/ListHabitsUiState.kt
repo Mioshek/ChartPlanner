@@ -1,7 +1,6 @@
 package com.mioshek.chartplanner.views.habits
 
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
@@ -14,7 +13,6 @@ import com.mioshek.chartplanner.data.models.settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 
@@ -73,7 +71,7 @@ class ListHabitsViewModel(
     }
 
     suspend fun changeTickState(hid: Int, date: Long, previousState: Boolean){
-        val completeAnytime = settingsRepository.getSetting("AllowCompletingHabitsAnytime").first().value.toBoolean()
+        val completeAnytime = settingsRepository.getSetting("InitAllowCompletingHabitsAnytime").first().value.toBoolean()
         val today = System.currentTimeMillis() /1000// Gets starting hours of this day
 
         if (completeAnytime || (DateFormatter.sdf.format(date * 1000).substring(0,10) == DateFormatter.sdf.format(today * 1000).substring(0,10)) ){
