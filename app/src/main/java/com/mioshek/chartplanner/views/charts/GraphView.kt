@@ -28,9 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
@@ -132,6 +134,15 @@ fun DrawGraph(
                     if (selected == timestamp){
                         backgroundColor = MaterialTheme.colorScheme.background
                     }
+                    var name = ""
+                    when(timestamp.name){
+                        "WEEK" -> {name = stringResource(R.string.week)
+                        }
+                        "MONTH" -> {name = stringResource(R.string.month)
+                        }
+                        "YEAR" -> {name = stringResource(R.string.year)
+                        }
+                    }
                     Box(
                         modifier = modifier
                             .weight(1f)
@@ -143,7 +154,7 @@ fun DrawGraph(
                             }
                     ){
                         Text(
-                            text = timestamp.name,
+                            text = name,
                             modifier = modifier
                                 .align(Alignment.Center)
                         )
@@ -187,8 +198,8 @@ fun DrawGraph(
                             chartName = "${DateFormatter.sdf.format(chartUiState.firstDay.toLong() * 86400000L).substring(0,10)} - ${DateFormatter.sdf.format((chartUiState.firstDay.toLong() + chartUiState.numberOfDays)*86400000).substring(0,10)}",
                             chartNameSize = 20.dp,
                             chartNameColor =  MaterialTheme.colorScheme.onSurface,
-                            xAxisName = "Days",
-                            yAxisName= "Percentage",
+                            xAxisName = stringResource(R.string.days),
+                            yAxisName= stringResource(R.string.percentage),
                             axesNamesSize = 10.dp,
                             axesNamesColor = MaterialTheme.colorScheme.onSurface
                         ),

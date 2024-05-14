@@ -17,5 +17,5 @@ package com.mioshek.chartplanner
 // send query only when modified / needed
 // Fix timezones [Done]
 // Animation while changing days in List Habits view
-//Fix completing habits in different timezones.
+//Fix completing habits in different timezones. [Done]
 //Create abstract file for creating habits and modifying them

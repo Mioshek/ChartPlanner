@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kalendarz Wykresów</string>
+    <string name="week">Tydzień</string>
+    <string name="month">Miesiąc</string>
+    <string name="year">Rok</string>
+    <string name="percentage">Procent</string>
+    <string name="chart">Wykres</string>
+    <string name="habits">Nawyki</string>
+    <string name="settings">Ustawienia</string>
+    <string name="date">Data</string>
+    <string name="newValue">Nowy</string>
+    <string name="name">Nazwa</string>
+    <string name="starting_date">Data Rozpoczęcia</string>
+    <string name="chose_day_interval">Wybierz Interwał Dni</string>
+    <string name="dont_repeat">Nie Powtarzaj</string>
+    <string name="repeat_everyday">Powtarzaj Codziennie</string>
+    <string name="repeat_every">Powtarzaj Co</string>
+    <string name="days">Dni</string>
+    <string name="description">Opis</string>
+    <string name="cancel">Anuluj</string>
+    <string name="ok">OK</string>
+    <string name="save">Zapisz</string>
+    <string name="language">Język</string>
+    <string name="font_size">Rozmiar Czcionki</string>
+    <string name="show_circles_on_graph">Pokaż Koła Na Wykresie</string>
+    <string name="allow_completing_habits_anytime">Zezwalaj Na Wykonywanie Nawyków O Dowolnej Porze</string>
+    <string name="export">Eksportuj</string>
+    <string name="_import">Importuj</string>
+</resources>

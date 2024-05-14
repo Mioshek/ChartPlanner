@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -21,11 +22,11 @@ import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 
 
-sealed class BottomNavigationItem(var route: String, var icon: Int, var title: String) {
-    object Chart : BottomNavigationItem("chart", R.drawable.chart_line, "Chart")
-    object Habits : BottomNavigationItem("habit", R.drawable.calendar_check, "Habits")
+sealed class BottomNavigationItem(var route: String, var icon: Int) {
+    object Chart : BottomNavigationItem("chart", R.drawable.chart_line)
+    object Habits : BottomNavigationItem("habit", R.drawable.calendar_check)
 
-    object Settings: BottomNavigationItem( "settings", R.drawable.settings, "Settings")
+    object Settings: BottomNavigationItem( "settings", R.drawable.settings)
 }
 
 
@@ -50,15 +51,21 @@ fun BottomBar(
         val currentRoute = navBackStackEntry?.destination?.route
 
         items.forEachIndexed{ index, item ->
+            var title = ""
+            when(item.route){
+                "chart" -> {title = stringResource(R.string.chart)}
+                "habit" -> {title = stringResource(R.string.habits)}
+                "settings" -> {title = stringResource(R.string.settings)}
+            }
 
             NavigationBarItem(
                 icon = {
                     Icon(
                         painterResource(id = item.icon),
-                        contentDescription = item.title,
+                        contentDescription = title,
                     )
                 },
-                label = { Text(text = item.title) },
+                label = { Text(text = title) },
                 alwaysShowLabel = true,
                 selected = currentRoute == item.route,
                 colors = NavigationBarItemDefaults.colors(

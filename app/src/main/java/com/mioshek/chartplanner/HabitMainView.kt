@@ -14,6 +14,7 @@ import com.mioshek.chartplanner.views.bars.BottomBar
 @Composable
 fun HabitMainView(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+
     Scaffold(
         modifier.fillMaxSize(),
 

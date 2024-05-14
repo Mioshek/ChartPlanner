@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -115,7 +116,7 @@ fun NewHabit(
         ){
             OutlinedTextField(
                 habit.value.name,
-                placeholder = {Text("Name")},
+                placeholder = {Text(stringResource(R.string.name))},
                 onValueChange = {habitViewModel.updateState(it, 2)},
                 modifier = modifier
                     .padding(bottom = 10.dp)
@@ -145,7 +146,7 @@ fun NewHabit(
                         .padding(bottom = 10.dp, end = 10.dp)
                         .fillMaxWidth()
                         .weight(3f),
-                    placeholder = { Text("Starting Date") },
+                    placeholder = { Text(stringResource(R.string.starting_date)) },
                     interactionSource = source
                 )
                 if (source.collectIsPressedAsState().value && !isSourcePressed && navController.currentDestination != NavDestination("habits/new/calendar")){
@@ -181,7 +182,7 @@ fun NewHabit(
                 habit.value.description.toString(),
                 onValueChange = {
                     habitViewModel.updateState(it, 3)},
-                placeholder = {Text("Description")},
+                placeholder = {Text(stringResource(R.string.description))},
                 modifier = modifier
                     .padding(bottom = 10.dp)
                     .fillMaxWidth(),
@@ -208,7 +209,7 @@ fun NumberPicker(
         modifier = modifier.padding(bottom = 20.dp, top = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Chose Day Interval")
+        Text(stringResource(R.string.chose_day_interval))
 
         Row {
             CustomNumberPicker(
@@ -232,9 +233,9 @@ fun NumberPicker(
 
         Text(
             when(habitViewModel.habitUiState.value.intervalDays){
-                1 -> "Repeat Everyday"
-                0 -> "Don't Repeat"
-                else -> "Repeat Every ${habitViewModel.habitUiState.value.intervalDays} Days"
+                1 -> stringResource(R.string.repeat_everyday)
+                0 -> stringResource(R.string.dont_repeat)
+                else -> stringResource(R.string.repeat_every) + " ${habitViewModel.habitUiState.value.intervalDays} " + stringResource(R.string.days)
             }
         )
     }
@@ -284,7 +285,7 @@ fun NavigationButtons(
                 navController.popBackStack()
             }
         ){
-            Text("Cancel")
+            Text(stringResource(R.string.cancel))
         }
 
         Spacer(
@@ -309,7 +310,7 @@ fun NavigationButtons(
                 }
             }
         ){
-            Text("Save")
+            Text(stringResource(R.string.save))
         }
     }
 }

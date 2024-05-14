@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -99,7 +100,7 @@ fun Settings(
                     }
             ) {
                 Icon(painter = painterResource(id = R.drawable.export_db), contentDescription = "Export")
-                Text(text = "Export")
+                Text(text = stringResource(R.string.export))
             }
 
             Column(
@@ -110,7 +111,7 @@ fun Settings(
                     }
             ) {
                 Icon(painter = painterResource(id = R.drawable.import_db), contentDescription = "Import")
-                Text(text = "Import")
+                Text(text = stringResource(R.string._import))
             }
         }
     }
