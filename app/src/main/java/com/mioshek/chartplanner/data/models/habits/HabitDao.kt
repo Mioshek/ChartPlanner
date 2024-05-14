@@ -34,7 +34,7 @@ interface HabitDao{
 
     @Query("SELECT * " +
             "FROM habits " +
-            "WHERE ((:currentDate  / 86400 - firstDate / 86400) % intervalDays = 0 AND firstDate <= :currentDate " +
+            "WHERE ((:currentDate / 86400 - firstDate / 86400) % intervalDays = 0 AND firstDate <= :currentDate " +
             "AND lastDate >= :currentDate) OR (intervalDays == 0 AND :currentDate  / 86400 = firstDate / 86400)")
     fun getAllByDate(currentDate: Long): Flow<List<Habit>>
 }

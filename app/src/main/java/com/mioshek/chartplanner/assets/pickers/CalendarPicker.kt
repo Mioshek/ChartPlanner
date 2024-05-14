@@ -1,6 +1,7 @@
 package com.mioshek.chartplanner.assets.pickers
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -9,8 +10,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
+import com.mioshek.chartplanner.assets.formats.DateFormatter
 import java.util.Calendar
 
+/**
+ * Modified [DatePickerDialog].
+ * Displays Date starting first day current year up to 20 years further.
+ * @return Start of selected day in UTC in seconds else current time in seconds (UTC timezone), Data Type: Long.
+ */
 @SuppressLint("UnrememberedGetBackStackEntry", "SimpleDateFormat")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,13 +33,14 @@ fun CalendarPicker(
         onDismissRequest = {navController.popBackStack()},
         confirmButton = {
             Button(onClick = {
-                val date: Long = if (datePickerState.selectedDateMillis != null){
-                    datePickerState.selectedDateMillis!! / 1000
+                var date: Long = if (datePickerState.selectedDateMillis != null){
+                    DateFormatter.changeTimezone(datePickerState.selectedDateMillis!!/1000, true)
                 } else{
-                    System.currentTimeMillis() / 1000
+                    DateFormatter.changeTimezone(System.currentTimeMillis()/1000,true)
                 }
-
-                navController.previousBackStackEntry?.savedStateHandle?.set("date", date)
+                Log.d("DatePickerUTCTime", DateFormatter.sdf.format(date))
+                date /= 1000
+                navController.previousBackStackEntry?.savedStateHandle?.set("pickedDate", date)
                 navController.popBackStack()
             }
 

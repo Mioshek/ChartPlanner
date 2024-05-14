@@ -1,6 +1,6 @@
+
 import android.content.res.Configuration
 import android.graphics.Paint
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -272,11 +272,13 @@ private fun DrawScope.drawPoints(
         val x = (xValues[i].toFloat() - minValueX.toFloat()) * xScale
         val y = size.height - (yValues[i] - minValueY) * yScale
 
-        drawCircle(
-            color = pointColor,
-            radius = pointRadius.toPx(),
-            center = Offset(x+10, y)
-        )
+        if(yValues[i] != 0f){
+            drawCircle(
+                color = pointColor,
+                radius = pointRadius.toPx(),
+                center = Offset(x+10, y)
+            )
+        }
     }
 }
 

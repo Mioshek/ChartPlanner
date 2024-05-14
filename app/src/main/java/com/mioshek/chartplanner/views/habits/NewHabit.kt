@@ -69,7 +69,7 @@ fun NewHabit(
 ){
     val coroutineScope = rememberCoroutineScope()
     val habit = habitViewModel.habitUiState.collectAsState()
-    var updatedFromDb = navController.previousBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("isInsertedToDb")?.value ?: true
+    val updatedFromDb = navController.previousBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("isInsertedToDb")?.value ?: true
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
     val source = remember{ MutableInteractionSource()}
@@ -124,20 +124,21 @@ fun NewHabit(
 
             // Changes in date listener
             LaunchedEffect(key1 = Unit){
-                val longDate = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Long?>("date")?.value
-                if (longDate != null && habit.value.firstDate != longDate){
+                val longDateUTC = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Long?>("pickedDate")?.value
+                if (longDateUTC != null && habit.value.firstDate != longDateUTC){
                     habitViewModel.updateState(
-                        longDate,
+                        longDateUTC,
                         5
                     )
                 }
+                Thread.sleep(500)
             }
 
             Row(
                 modifier = modifier.fillMaxWidth()
             ){
                 OutlinedTextField(
-                    value = habit.value.firstDate?.let { DateFormatter.sdf.format(it * 1000 - DateFormatter.timezoneOffset).substring(0, 10) } ?: "",
+                    value = habit.value.firstDate?.let { DateFormatter.sdf.format(DateFormatter.changeTimezone(it, false)).substring(0, 10) } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     modifier = modifier

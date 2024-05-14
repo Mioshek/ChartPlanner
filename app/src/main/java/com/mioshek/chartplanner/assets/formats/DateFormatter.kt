@@ -10,6 +10,17 @@ class DateFormatter {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
         val timezoneOffset = getTimezoneOffsetInMilis()
         val currentTimeInSec = getCurrentTimeInSec()
+
+        /**
+         * @param [date]: Long in seconds to be transformed into other timezone
+         * @param [toUTC]: Boolean, determines whether change timezone to current or UTC
+         * @return [date]: Long in milis of ready date
+         */
+        fun changeTimezone(date: Long, toUTC: Boolean): Long {
+            val formattedDate = date * 1000
+
+            return if (toUTC) formattedDate - timezoneOffset else formattedDate + timezoneOffset
+        }
     }
 }
 

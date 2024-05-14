@@ -72,18 +72,17 @@ class ListHabitsViewModel(
 
     suspend fun changeTickState(hid: Int, date: Long, previousState: Boolean){
         val completeAnytime = settingsRepository.getSetting("InitAllowCompletingHabitsAnytime").first().value.toBoolean()
-        val today = System.currentTimeMillis() /1000// Gets starting hours of this day
-
+        val today = System.currentTimeMillis() /1000
         if (completeAnytime || (DateFormatter.sdf.format(date * 1000).substring(0,10) == DateFormatter.sdf.format(today * 1000).substring(0,10)) ){
 
             if (previousState){
-                completedRepository.delete(date, hid)
+                completedRepository.delete(DateFormatter.changeTimezone(date, true)/1000, hid)
             }
             else{
                 completedRepository.insert(
                     Completed(
                         habitId = hid,
-                        date = date
+                        date = DateFormatter.changeTimezone(date, true)/1000
                     )
                 )
             }

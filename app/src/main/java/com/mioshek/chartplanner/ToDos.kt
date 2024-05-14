@@ -8,7 +8,7 @@ package com.mioshek.chartplanner
 // Implement end date which is defined when you delete habit if current date is later than date of creation but if later then delete entirely
 // Also possibility to delete all instances of habit
 // Settings module with font sizes, selecting theme, exporting and importing data, [Just started]
-// Last 12 months or yearly options
+// Last 12 months or yearly options [Halfway]
 // Add to settings option to enable completing habit each day instead of current day [Done]
 // Flag in options for caching
 // Y axis should be signed only with values of points
@@ -17,3 +17,5 @@ package com.mioshek.chartplanner
 // send query only when modified / needed
 // Fix timezones [Done]
 // Animation while changing days in List Habits view
+//Fix completing habits in different timezones.
+//Create abstract file for creating habits and modifying them
