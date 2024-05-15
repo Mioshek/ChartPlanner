@@ -20,8 +20,7 @@ data class HabitUiState(
     val done: Boolean = false,
     val firstDate: Long? = null,
     val lastDate: Long? = null,
-    val intervalDays: Int? = null, // 1 means everyday, 0 means once
-    val selected: Boolean = false
+    val intervalDays: Short? = null, // 1 means everyday, 0 means once
 )
 
 fun HabitUiState.toHabit(): Habit {
@@ -95,7 +94,7 @@ class HabitViewModel(
                 }
 
                 7 -> {
-                    newIntervalDays  = fieldValue as Int?
+                    newIntervalDays  = fieldValue as Short?
                 }
 
                 else -> {
@@ -108,7 +107,7 @@ class HabitViewModel(
                 done = newCompleted,
                 firstDate = newFirstDate,
                 lastDate = newLastDate,
-                intervalDays = newIntervalDays!!
+                intervalDays = newIntervalDays!!,
             )
         }
     }

@@ -57,7 +57,7 @@ fun CustomNumberPicker(
     items: List<String>,
     visibleItemsCount: Int,
     dividerColor: Color,
-    startIndex: Int,
+    startIndex: Short,
     onValueChange: (String) -> Unit,
     padding: Dp,
     fontSize: TextUnit,

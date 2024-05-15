@@ -19,7 +19,8 @@ import kotlinx.coroutines.flow.update
 
 data class ListHabitsUiState(
     val habits: List<HabitUiState> = listOf(),
-    val enterSelectMode: Boolean = false
+    val enterSelectMode: Boolean = false,
+    val selectedHabits: MutableList<HabitUiState> = mutableListOf()
 )
 
 class ListHabitsViewModel(
@@ -70,6 +71,30 @@ class ListHabitsViewModel(
         }
     }
 
+    fun selectHabit(habit: HabitUiState){
+        val newSelectedHabits = _listHabitsUiState.value.selectedHabits
+        newSelectedHabits.add(habit)
+        _listHabitsUiState.update {currentState ->
+            currentState.copy(
+                selectedHabits = newSelectedHabits
+            )
+        }
+    }
+
+    fun unselectHabit(habit: HabitUiState){
+        val newSelectedHabits = _listHabitsUiState.value.selectedHabits
+        newSelectedHabits.remove(habit)
+        _listHabitsUiState.update {currentState ->
+            currentState.copy(
+                selectedHabits = newSelectedHabits
+            )
+        }
+    }
+
+    fun isHabitSelected(habit: HabitUiState): Boolean {
+        return habit in _listHabitsUiState.value.selectedHabits
+    }
+
     suspend fun changeTickState(hid: Int, date: Long, previousState: Boolean){
         val completeAnytime = settingsRepository.getSetting("InitAllowCompletingHabitsAnytime").first().value.toBoolean()
         val today = System.currentTimeMillis() /1000
@@ -89,21 +114,11 @@ class ListHabitsViewModel(
         }
     }
 
-//    fun removeHabit(id: Int){
-//        _listHabitsUiState.update { currentState ->
-//            val newHabitList = currentState.habits.toMutableList()
-//            newHabitList.removeAt(id)
-//            val length = newHabitList.size
-//            for (i in id until length){
-//                val habit = newHabitList[i]
-//                val newHabit = HabitUiState(habit.id?.minus(1), habit.name, habit.description, habit.completed, habit.date, habit.intervalDays)
-//                newHabitList[i] = newHabit
-//            }
-//            currentState.copy(
-//                habits = newHabitList.toList()
-//            )
-//        }
-//    }
+    suspend fun removeSelectedHabits(){
+        for (habit in _listHabitsUiState.value.selectedHabits){
+            habitsRepository.delete(habit.id!!)
+        }
+    }
 }
 
 typealias LogCallbackListHabits = (String) -> Unit

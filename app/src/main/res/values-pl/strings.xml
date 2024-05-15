@@ -27,4 +27,6 @@
     <string name="allow_completing_habits_anytime">Zezwalaj Na Wykonywanie Nawyków O Dowolnej Porze</string>
     <string name="export">Eksportuj</string>
     <string name="_import">Importuj</string>
+    <string name="delete">Usuń</string>
+    <string name="confirm">Potwierdź</string>
 </resources>

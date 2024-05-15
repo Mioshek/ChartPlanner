@@ -26,4 +26,6 @@
     <string name="allow_completing_habits_anytime">Allow Completing Habits Anytime</string>
     <string name="export">Export</string>
     <string name="_import">Import</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
 </resources>

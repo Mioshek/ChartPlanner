@@ -20,7 +20,7 @@ interface HabitDao{
         description: String,
         firstDate: Long,
         lastDate: Long,
-        intervalDays: Int,
+        intervalDays: kotlin.Short,
     )
 
     @Query("DELETE FROM habits WHERE hid =:h_id")

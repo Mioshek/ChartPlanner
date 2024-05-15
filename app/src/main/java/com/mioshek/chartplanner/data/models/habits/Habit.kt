@@ -10,7 +10,7 @@ data class Habit(
     val description: String,
     val firstDate: Long,
     val lastDate: Long,
-    val intervalDays: Int,
+    val intervalDays: Short,
 
     @PrimaryKey(autoGenerate = true)
     @NonNull

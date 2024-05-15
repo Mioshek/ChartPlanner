@@ -175,7 +175,7 @@ fun ListHabits(
         }
         NewHabitNavigation(navController, stringResource(R.string.newValue))
         if (listHabitsUiState.enterSelectMode){
-            DeleteSelectedIcon()
+            DeleteSelectedPopup(habitsViewModel)
         }
     }
 }
@@ -188,12 +188,13 @@ fun HabitElement(
     date: Long,
     modifier: Modifier = Modifier
 ){
-    val selection = if (habit.selected){
-        BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+    var selection by remember{
+        mutableStateOf(BorderStroke(0.dp, Color.Transparent))
     }
-    else{
-        BorderStroke(0.dp, Color.Transparent)
+    if (!habitsViewModel.habitUiState.collectAsState().value.enterSelectMode){
+        selection = BorderStroke(0.dp, Color.Transparent)
     }
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -218,10 +219,12 @@ fun HabitElement(
                     },
                     onTap = {
                         if (habitsViewModel.habitUiState.value.enterSelectMode) {
-                            if (habit.selected) {
-                                //unselect
+                            if (habitsViewModel.isHabitSelected(habit)) {
+                                habitsViewModel.unselectHabit(habit)
+                                selection = BorderStroke(0.dp, Color.Transparent)
                             } else {
-                                //select
+                                habitsViewModel.selectHabit(habit)
+                                selection = BorderStroke(2.dp, Color.Blue)
                             }
                         } else {
                             navController.currentBackStackEntry?.savedStateHandle?.set(
@@ -356,9 +359,11 @@ fun NewHabitNavigation(
 }
 
 @Composable
-fun DeleteSelectedIcon(
+fun DeleteSelectedPopup(
+    habitsViewModel: ListHabitsViewModel,
     modifier: Modifier = Modifier
 ){
+    val coroutineScope = rememberCoroutineScope()
     var displayAlert by remember { mutableStateOf(false) }
     Box(
         modifier.fillMaxSize()
@@ -377,7 +382,7 @@ fun DeleteSelectedIcon(
                     Icons.Filled.Delete,
                     contentDescription = "Add"
                 )
-                Text("Delete")
+                Text(stringResource(R.string.delete))
             }
         }
         if (displayAlert){
@@ -386,7 +391,7 @@ fun DeleteSelectedIcon(
                     Icon(Icons.Filled.Warning, contentDescription = "Example Icon")
                 },
                 title = {
-                    Text(text = "Delete")
+                    Text(text = stringResource(R.string.delete))
                 },
                 text = {
                     Text(text = "Do You Want To Delete All Selected Habits?")
@@ -395,17 +400,21 @@ fun DeleteSelectedIcon(
                 confirmButton = {
                     TextButton(
                         onClick = {
-//                        onConfirmation()
+                            coroutineScope.launch{
+                                habitsViewModel.removeSelectedHabits()
+                                displayAlert = false
+                                habitsViewModel.changeSelection(false)
+                            }
                         }
                     ) {
-                        Text("Confirm")
+                        Text(stringResource(R.string.confirm))
                     }
                 },
                 dismissButton = {
                     TextButton(
                         onClick = { displayAlert = false}
                     ) {
-                        Text("Dismiss")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )

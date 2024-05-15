@@ -220,10 +220,10 @@ fun NumberPicker(
                 habitViewModel.habitUiState.value.intervalDays ?: 0,
                 onValueChange = {
                     if (it == "Don't Repeat"){
-                        habitViewModel.updateState(0, 7)
+                        habitViewModel.updateState(0.toShort(), 7)
                     }
                     else{
-                        habitViewModel.updateState(it.toInt(), 7)
+                        habitViewModel.updateState(it.toShort(), 7)
                     }
                 },
                 fontSize = 20.sp,
@@ -233,8 +233,8 @@ fun NumberPicker(
 
         Text(
             when(habitViewModel.habitUiState.value.intervalDays){
-                1 -> stringResource(R.string.repeat_everyday)
-                0 -> stringResource(R.string.dont_repeat)
+                1.toShort() -> stringResource(R.string.repeat_everyday)
+                0.toShort() -> stringResource(R.string.dont_repeat)
                 else -> stringResource(R.string.repeat_every) + " ${habitViewModel.habitUiState.value.intervalDays} " + stringResource(R.string.days)
             }
         )
