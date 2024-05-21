@@ -8,9 +8,9 @@
     <li><b>Boost Your Motivation:</b> Leverage psychological principles that show visualizing progress can significantly enhance goal achievement. Seeing your progress on a chart reinforces your commitment and encourages you to keep moving forward.</li>
 </ul>
 <h2>How does the app look?</h2>
-<ul>
-    <li><b>List View:</b> <img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_ListHabits.jpg" alt="list view" style="size: 25%"></li>
-    <li><b>Week Chart View</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Chart.jpg" alt="week chart view" style="size: 25%"></li>
-    <li><b>Creating New Habit</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_New.jpg" alt="creating new habit" style="size: 25%"></li>
-    <li><b>Settings View</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Settings.jpg" alt="settings view" style="size: 25%"></li>
-</ul>
+<div style="display:flex;">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_ListHabits.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Chart.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_New.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Settings.jpg" width="24%">
+</div>
