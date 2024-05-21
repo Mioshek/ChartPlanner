@@ -9,8 +9,8 @@
 </ul>
 <h2>How does the app look?</h2>
 <ul>
-    <li><b>List View:</b> <img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_ListHabits.jpg" alt="list view"></li>
-    <li><b>Week Chart View</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Chart.jpg" alt="week chart view"></li>
-    <li><b>Creating New Habit</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_New.jpg" alt="creating new habit"></li>
-    <li><b>Settings View</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Settings.jpg" alt="settings view"></li>
+    <li><b>List View:</b> <img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_ListHabits.jpg" alt="list view" style="size: 25%"></li>
+    <li><b>Week Chart View</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Chart.jpg" alt="week chart view" style="size: 25%"></li>
+    <li><b>Creating New Habit</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_New.jpg" alt="creating new habit" style="size: 25%"></li>
+    <li><b>Settings View</b><img src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Settings.jpg" alt="settings view" style="size: 25%"></li>
 </ul>
