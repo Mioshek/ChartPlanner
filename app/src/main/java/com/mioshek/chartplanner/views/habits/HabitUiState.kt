@@ -1,6 +1,5 @@
 package com.mioshek.chartplanner.views.habits
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
@@ -13,33 +12,40 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 
+
 data class HabitUiState(
     val id: Int? = null,
     val name: String = "",
-    val description: String? = "",
+    val description: String? = null,
     val done: Boolean = false,
-    val firstDate: Long? = null,
-    val lastDate: Long? = null,
-    val intervalDays: Short? = null, // 1 means everyday, 0 means once
+    val startEpochDate: Int? = null,
+    val startEpochTime: Int? = null,
+    val endEpochDate: Int? = null,
+    val endEpochTime: Int? = null,
+    val intervalDays: Int = 0, // 1 means everyday, 0 means once
 )
 
 fun HabitUiState.toHabit(): Habit {
     if (id == null){
         return Habit(
             name = name,
-            description = description!!,
-            firstDate =  firstDate!!,
-            lastDate = lastDate ?: Long.MAX_VALUE,
-            intervalDays = intervalDays!!
+            description = description,
+            startEpochDate =  startEpochDate!!,
+            startEpochTime =  startEpochTime!!,
+            endEpochDate = endEpochDate,
+            endEpochTime = endEpochTime,
+            intervalDays = intervalDays
         )
     }
     return Habit(
-        hid = id,
+        hId = id,
         name = name,
-        description = description!!,
-        firstDate = firstDate!!,
-        lastDate = lastDate ?: Long.MAX_VALUE,
-        intervalDays = intervalDays ?: 0
+        description = description,
+        startEpochDate =  startEpochDate!!,
+        startEpochTime =  startEpochTime!!,
+        endEpochDate = endEpochDate,
+        endEpochTime = endEpochTime,
+        intervalDays = intervalDays
     )
 }
 
@@ -55,60 +61,59 @@ class HabitViewModel(
 
     private var logCallbackListHabits: LogCallbackHabit? = null
 
-    fun updateState(fieldValue: Any?, fieldId: Int){ //same usage as edit habit
+    /**
+     * [fieldId] A list of options to configure the action. Supported options include:
+     *  1. [HabitUiState.id] : Int? Is given at the beginning of creating a habit and cannot be changed!
+     *  1. [HabitUiState.name] : String
+     *  1. [HabitUiState.description] : String?
+     *  1. [HabitUiState.done] : Boolean
+     *  1. [HabitUiState.startEpochDate] : Int?
+     *  1. [HabitUiState.startEpochTime] : Int?
+     *  1. [HabitUiState.endEpochDate] : Int?
+     *  1. [HabitUiState.endEpochTime] : Int?
+     *  1. [HabitUiState.intervalDays] : Int?
+     *  @param fieldValue type -> Any?
+     */
+    fun updateState(fieldValue: Any?, fieldId: Int){
         _habitUiState.update { currentState ->
-            var elementToUpdate = _habitUiState.asStateFlow().value
-
-            var newName = elementToUpdate.name
-            var newDescription = elementToUpdate.description
-            var newCompleted = elementToUpdate.done
-            var newFirstDate = elementToUpdate.firstDate
-            var newLastDate = elementToUpdate.lastDate
-            var newIntervalDays = elementToUpdate.intervalDays
 
             when(fieldId){
                 2 -> {
-                    newName= fieldValue as String
+                    currentState.copy(name = fieldValue as String)
                 }
 
                 3 -> {
-                    var actualValue = fieldValue
-                    actualValue = if (fieldValue == null){
-                        ""
-                    } else{
-                        actualValue.toString()
-                    }
-                    newDescription = actualValue
+                    currentState.copy(description = fieldValue as String?)
                 }
 
                 4 -> {
-                    newCompleted = fieldValue as Boolean
+                    currentState.copy(done = fieldValue as Boolean)
                 }
 
                 5 -> {
-                    newFirstDate = fieldValue as Long
+                    currentState.copy(startEpochDate = fieldValue as Int)
                 }
 
                 6 ->{
-                    newLastDate = fieldValue as Long
+                    currentState.copy(startEpochTime = fieldValue as Int)
                 }
 
                 7 -> {
-                    newIntervalDays  = fieldValue as Short?
+                    currentState.copy(endEpochDate = fieldValue as Int)
+                }
+
+                8 -> {
+                    currentState.copy(endEpochTime = fieldValue as Int?)
+                }
+
+                9 -> {
+                    currentState.copy(intervalDays = fieldValue as Int)
                 }
 
                 else -> {
-                    Log.d("HabitUiStateError","FieldId: ${fieldId}, FieldValue: {$fieldValue}")
+                    throw IllegalArgumentException("FieldId: ${fieldId}, FieldValue: {$fieldValue}")
                 }
             }
-            currentState.copy(
-                name = newName,
-                description = newDescription,
-                done = newCompleted,
-                firstDate = newFirstDate,
-                lastDate = newLastDate,
-                intervalDays = newIntervalDays!!,
-            )
         }
     }
 
@@ -117,15 +122,30 @@ class HabitViewModel(
         if (updatedHabit != null) {
             _habitUiState.update {currentState ->
                 currentState.copy(
-                    id = updatedHabit.hid,
+                    id = updatedHabit.hId,
                     name = updatedHabit.name,
                     description = updatedHabit.description,
-                    firstDate = updatedHabit.firstDate,
-                    lastDate = updatedHabit.lastDate,
+                    startEpochDate = updatedHabit.startEpochDate,
+                    startEpochTime = updatedHabit.startEpochTime,
+                    endEpochDate = updatedHabit.endEpochDate,
+                    endEpochTime = updatedHabit.endEpochTime,
                     intervalDays = updatedHabit.intervalDays
                 )
             }
         }
+    }
+
+    fun timeToMinutes(time: String): Int {
+        val parts = time.split(":")
+        val hours = parts[0].toInt()
+        val minutes = parts[1].toInt()
+        return hours * 60 + minutes
+    }
+
+    fun minutesToTime(): String {
+        val hours = _habitUiState.value.startEpochTime?.div(60)
+        val mins = _habitUiState.value.startEpochTime?.rem(60)
+        return "%02d:%02d".format(hours, mins)
     }
 
     suspend fun insertHabitDb(newHabit: Habit){
@@ -140,9 +160,8 @@ class HabitViewModel(
         return habitsRepository.getHabitStream(id).first()
     }
 
-
     fun checkIfAnyNull(): Boolean {
-        return _habitUiState.value.firstDate == null || _habitUiState.value.intervalDays == null
+        return _habitUiState.value.startEpochDate == null || _habitUiState.value.name == ""
     }
 }
 

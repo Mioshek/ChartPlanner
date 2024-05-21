@@ -11,18 +11,19 @@ interface CompletedDao{
     @Insert
     suspend fun insert(completed: Completed)
 
-    @Query("DELETE FROM completed WHERE date / 86400 BETWEEN :date / 86400 AND :date / 86400 + 1 AND habitId = :hid ")
-    suspend fun delete(date: Long, hid: Int)
+    @Query("DELETE FROM completed WHERE date = :date AND hId = :hId AND time = :time")
+    suspend fun delete(hId: Int, date: Int, time: Int)
 
     @Query("SELECT * " +
             "FROM completed " +
-            "WHERE habitId = :h_id")
-    fun getByHabitId(h_id: Int): Flow<List<Completed>>
+            "WHERE hId = :hId"
+    )
+    fun getByHabitId(hId: Int): Flow<List<Completed>>
 
     @Query("SELECT * " +
             "FROM completed " +
-            "WHERE date / 86400 = :date / 86400")
-    fun getByDate(date: Long): Flow<List<Completed>>
+            "WHERE date = :date")
+    fun getByDate(date: Int): Flow<List<Completed>>
 
     @Query("SELECT *" +
             "FROM completed")
@@ -45,9 +46,9 @@ interface CompletedDao{
             "        :startingDay + n AS displayedDate," +
             "        COUNT(" +
             "            CASE" +
-            "                WHEN target_timestamp + n - H.firstDate / 86400 >= 0" +
-            "                     AND ((target_timestamp + n - h.firstDate /86400) % h.intervalDays = 0" +
-            "                     OR (intervalDays = 0 AND target_timestamp + n - h.firstDate /86400 = 0))" +
+            "                WHEN target_timestamp + n - H.startEpochDate >= 0" +
+            "                     AND ((target_timestamp + n - h.startEpochDate) % h.intervalDays = 0" +
+            "                     OR (intervalDays = 0 AND target_timestamp + n - h.startEpochDate = 0))" +
             "                THEN 1" +
             "                ELSE NULL" +
             "            END" +
@@ -59,11 +60,11 @@ interface CompletedDao{
             "), " +
             "Query2 AS (" +
             "    SELECT" +
-            "        completed.date / 86400 AS displayedDate," +
+            "        completed.date AS displayedDate," +
             "        CAST(COUNT(*) AS REAL) AS HowMany" +
             "    FROM completed" +
-            "    WHERE completed.date / 86400 >= :startingDay AND completed.date / 86400 <= :startingDay + :numberOfDays" +
-            "    GROUP BY completed.date / 86400" +
+            "    WHERE completed.date >= :startingDay AND completed.date <= :startingDay + :numberOfDays" +
+            "    GROUP BY completed.date" +
             ") " +
             "SELECT COALESCE(Query2.HowMany * 100/ Query1.HowMany, 0) " +
             "FROM Query1 " +

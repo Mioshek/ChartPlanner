@@ -1,7 +1,6 @@
 package com.mioshek.chartplanner.assets.pickers
 
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
@@ -50,6 +49,10 @@ class PickerState {
     var selectedItem by mutableStateOf("")
 }
 
+/**
+ * Infinite number picker similar to the one that in MIUI clock app.
+ * @param items takes string array and loops its arguments the way it looks infinite
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomNumberPicker(
@@ -57,10 +60,11 @@ fun CustomNumberPicker(
     items: List<String>,
     visibleItemsCount: Int,
     dividerColor: Color,
-    startIndex: Short,
+    startIndex: Int,
     onValueChange: (String) -> Unit,
     padding: Dp,
     fontSize: TextUnit,
+    showHandIcon: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val visibleItemsMiddle = visibleItemsCount / 2
@@ -75,7 +79,7 @@ fun CustomNumberPicker(
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
 
     val itemHeightPixels = remember { mutableIntStateOf(0) }
-    val itemHeightDp = pixelsToDp(itemHeightPixels.value)
+    val itemHeightDp = pixelsToDp(itemHeightPixels.intValue)
 
     val fadingEdgeGradient = remember {
         Brush.verticalGradient(
@@ -92,7 +96,6 @@ fun CustomNumberPicker(
             .collect { item ->
                 if (state.selectedItem != item) {
                     onValueChange(item)
-                    Log.d("item", "$item, ${item.javaClass}")
                 }
             }
 
@@ -131,14 +134,16 @@ fun CustomNumberPicker(
             modifier = Modifier.offset(y = itemHeightDp * (visibleItemsMiddle + 1) + padding / 2)
         )
 
-        Icon(
-            painter = painterResource(R.drawable.swipe_vertical),
-            contentDescription = "",
-            modifier
-                .size(40.dp)
-                .padding(end = 10.dp)
-                .offset(y = itemHeightDp * visibleItemsMiddle + padding / 3, x = 10.dp)
-        )
+        if(showHandIcon){
+            Icon(
+                painter = painterResource(R.drawable.swipe_vertical),
+                contentDescription = "",
+                modifier
+                    .size(40.dp)
+                    .padding(end = 10.dp)
+                    .offset(y = itemHeightDp * visibleItemsMiddle + padding / 3, x = 10.dp)
+            )
+        }
     }
 }
 

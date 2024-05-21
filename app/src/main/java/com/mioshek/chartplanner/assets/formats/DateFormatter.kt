@@ -2,6 +2,8 @@ package com.mioshek.chartplanner.assets.formats
 
 import android.annotation.SuppressLint
 import java.text.SimpleDateFormat
+import java.time.Instant.ofEpochSecond
+import java.time.ZoneId
 import java.util.TimeZone
 
 class DateFormatter {
@@ -10,6 +12,7 @@ class DateFormatter {
         val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
         val timezoneOffset = getTimezoneOffsetInMilis()
         val currentTimeInSec = getCurrentTimeInSec()
+        val currentDate = ((System.currentTimeMillis() + timezoneOffset) /86400000).toInt()
 
         /**
          * @param [date]: Long in seconds to be transformed into other timezone
@@ -21,7 +24,18 @@ class DateFormatter {
 
             return if (toUTC) formattedDate - timezoneOffset else formattedDate + timezoneOffset
         }
+
+        /**
+         * @param [date] in seconds (Epoch): Long
+         * @return [date], transformed to starting hours of this day in seconds (Epoch): Long
+         */
+        fun getStartDayTime(date: Long): Long {
+            val instant = ofEpochSecond(date)
+            val zoneId = ZoneId.systemDefault()
+            return instant.atZone(zoneId).toLocalDate().atStartOfDay(zoneId).toInstant().toEpochMilli() /1000
+        }
     }
+
 }
 
 fun getTimezoneOffsetInMilis(): Int {

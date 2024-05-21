@@ -35,7 +35,7 @@ class ListHabitsViewModel(
     private var logCallbackListHabits: LogCallbackListHabits? = null
 
     @Composable
-    fun UpdateListUi(date: Long){
+    fun UpdateListUi(date: Int){
         val extractedHabits = habitsRepository.getAllHabitsByDateStream(date).collectAsState(null).value
         val extractedCompleted = completedRepository.getByDate(date).collectAsState(null).value
         if (extractedHabits != null){
@@ -44,7 +44,7 @@ class ListHabitsViewModel(
                 var done = false
                 if (extractedCompleted != null){
                     for (completed in extractedCompleted){
-                        if(habit.hid == completed.habitId){
+                        if(habit.hId == completed.hId){
                             done = true
                         }
                     }
@@ -52,7 +52,15 @@ class ListHabitsViewModel(
 
                 readyHabits.add(
                     HabitUiState(
-                        habit.hid, habit.name, habit.description, done, habit.firstDate, habit.lastDate, habit.intervalDays
+                        habit.hId,
+                        habit.name,
+                        habit.description,
+                        done,
+                        habit.startEpochDate,
+                        habit.startEpochTime,
+                        habit.endEpochDate,
+                        habit.endEpochTime,
+                        habit.intervalDays
                     )
                 )
             }
@@ -95,19 +103,20 @@ class ListHabitsViewModel(
         return habit in _listHabitsUiState.value.selectedHabits
     }
 
-    suspend fun changeTickState(hid: Int, date: Long, previousState: Boolean){
+    suspend fun changeTickState(hid: Int, date: Int, time: Int, previousState: Boolean){
         val completeAnytime = settingsRepository.getSetting("InitAllowCompletingHabitsAnytime").first().value.toBoolean()
-        val today = System.currentTimeMillis() /1000
-        if (completeAnytime || (DateFormatter.sdf.format(date * 1000).substring(0,10) == DateFormatter.sdf.format(today * 1000).substring(0,10)) ){
+        val today = DateFormatter.currentDate
+        if (completeAnytime || date == today){
 
             if (previousState){
-                completedRepository.delete(DateFormatter.changeTimezone(date, true)/1000, hid)
+                completedRepository.delete(hid, date, time)// add time
             }
             else{
                 completedRepository.insert(
                     Completed(
-                        habitId = hid,
-                        date = DateFormatter.changeTimezone(date, true)/1000
+                        hId = hid,
+                        date = date,
+                        time = time
                     )
                 )
             }

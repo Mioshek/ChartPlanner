@@ -1,6 +1,5 @@
 package com.mioshek.chartplanner.data.models.habits
 
-import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -9,8 +8,8 @@ import androidx.room.PrimaryKey
     foreignKeys = [
         ForeignKey(
             entity = Habit::class,
-            parentColumns = arrayOf("hid"),
-            childColumns = arrayOf("habitId"),
+            parentColumns = arrayOf("hId"),
+            childColumns = arrayOf("hId"),
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -18,8 +17,7 @@ import androidx.room.PrimaryKey
 data class Completed(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-
-    val habitId: Int,
-
-    val date: Long,
+    val hId: Int,
+    val date: Int,
+    val time: Int
 )

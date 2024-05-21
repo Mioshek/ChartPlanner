@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.*
 import androidx.compose.ui.res.painterResource
@@ -53,6 +54,7 @@ import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.assets.pickers.CalendarPicker
 import com.mioshek.chartplanner.assets.pickers.CustomNumberPicker
+import com.mioshek.chartplanner.assets.pickers.PickerState
 import com.mioshek.chartplanner.assets.pickers.rememberPickerState
 import com.mioshek.chartplanner.ui.AppViewModelProvider
 import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
@@ -126,29 +128,77 @@ fun NewHabit(
             // Changes in date listener
             LaunchedEffect(key1 = Unit){
                 val longDateUTC = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<Long?>("pickedDate")?.value
-                if (longDateUTC != null && habit.value.firstDate != longDateUTC){
-                    habitViewModel.updateState(
-                        longDateUTC,
-                        5
-                    )
+                if (longDateUTC != null){
+                    val date = ((longDateUTC + DateFormatter.timezoneOffset/1000)/ 86400).toInt()
+                    if (habit.value.startEpochDate != date){
+                        habitViewModel.updateState(
+                            date,
+                            5
+                        )
+                    }
                 }
                 Thread.sleep(500)
             }
 
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier.fillMaxWidth()
             ){
+
                 OutlinedTextField(
-                    value = habit.value.firstDate?.let { DateFormatter.sdf.format(DateFormatter.changeTimezone(it, false)).substring(0, 10) } ?: "",
+                    value = (habit.value.startEpochDate?.let { DateFormatter.sdf.format(it.toLong() * 86400000).substring(0,10) } ?: "") +
+                            "  ${habit.value.startEpochTime.let { it ?: 0 } / 60} : ${habit.value.startEpochTime.let { it ?: 0 } % 60}",
                     onValueChange = {},
                     readOnly = true,
                     modifier = modifier
                         .padding(bottom = 10.dp, end = 10.dp)
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .weight(3f),
                     placeholder = { Text(stringResource(R.string.starting_date)) },
                     interactionSource = source
                 )
+
+                CustomNumberPicker( // Hours
+                    state = PickerState(),
+                    items = (0..23).map{it.toString()},
+                    visibleItemsCount = 3,
+                    dividerColor = Color.White,
+                    startIndex = 0,
+                    onValueChange = {
+                        val time = habit.value.startEpochTime ?: 0
+                        val minutes = time % 60
+                        val newTime = it.toInt() * 60 + minutes
+                        habitViewModel.updateState(newTime,6)
+                        },
+                    padding = 0.dp,
+                    fontSize = 14.sp,
+                    showHandIcon = false,
+                    modifier.weight(0.3f)
+                )
+
+                Text(
+                    text = ":",
+                    modifier = modifier.weight(0.2f).padding(5.dp)
+                )
+
+                CustomNumberPicker(
+                    state = PickerState(),
+                    items = (0..59).map{it.toString()},
+                    visibleItemsCount = 3,
+                    dividerColor = Color.White,
+                    startIndex = 0,
+                    onValueChange = {
+                        val time = habit.value.startEpochTime ?: 0
+                        val hours = time / 60
+                        val newTime = hours * 60 + it.toInt()
+                        habitViewModel.updateState(newTime,6)
+                    },
+                    padding = 0.dp,
+                    fontSize = 14.sp,
+                    showHandIcon = false,
+                    modifier.weight(0.3f)
+                ) // Minutes
+
                 if (source.collectIsPressedAsState().value && !isSourcePressed && navController.currentDestination != NavDestination("habits/new/calendar")){
                     isSourcePressed = true
                     navController.navigate(route = "habits/new/calendar")
@@ -159,8 +209,9 @@ fun NewHabit(
                         navController.navigate(route = "habits/new/calendar")
                     },
                     modifier
-                        .fillMaxWidth()
+                        .fillMaxSize()
                         .weight(1f)
+                        .padding(start = 8.dp)
                         .align(Alignment.CenterVertically),
                 ){
                     Icon(
@@ -179,7 +230,7 @@ fun NewHabit(
 
 
             OutlinedTextField(
-                habit.value.description.toString(),
+                habit.value.description ?: "",
                 onValueChange = {
                     habitViewModel.updateState(it, 3)},
                 placeholder = {Text(stringResource(R.string.description))},
@@ -190,6 +241,7 @@ fun NewHabit(
                 minLines = 4,
                 maxLines = 500
             )
+
             NavigationButtons(habitViewModel, habitId, habit, coroutineScope, navController)
         }
     }
@@ -217,24 +269,25 @@ fun NumberPicker(
                 stringOptions,
                 3,
                 MaterialTheme.colorScheme.secondary,
-                habitViewModel.habitUiState.value.intervalDays ?: 0,
+                habitViewModel.habitUiState.value.intervalDays,
                 onValueChange = {
                     if (it == "Don't Repeat"){
-                        habitViewModel.updateState(0.toShort(), 7)
+                        habitViewModel.updateState(0, 9)
                     }
                     else{
-                        habitViewModel.updateState(it.toShort(), 7)
+                        habitViewModel.updateState(it.toInt(), 9)
                     }
                 },
                 fontSize = 20.sp,
-                padding = 10.dp
+                padding = 10.dp,
+                showHandIcon = true
             )
         }
 
         Text(
             when(habitViewModel.habitUiState.value.intervalDays){
-                1.toShort() -> stringResource(R.string.repeat_everyday)
-                0.toShort() -> stringResource(R.string.dont_repeat)
+                1 -> stringResource(R.string.repeat_everyday)
+                0 -> stringResource(R.string.dont_repeat)
                 else -> stringResource(R.string.repeat_every) + " ${habitViewModel.habitUiState.value.intervalDays} " + stringResource(R.string.days)
             }
         )

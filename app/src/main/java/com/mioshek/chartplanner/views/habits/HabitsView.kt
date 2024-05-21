@@ -39,7 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,13 +71,14 @@ fun ListHabits(
     val verticalScroll = rememberScrollState(0)
     var choosingDate by remember { mutableStateOf(true)}
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
-    var displayedDateCurrentTimezone by remember { mutableLongStateOf(System.currentTimeMillis()/86400000) }
+    var chosenDay by remember { mutableIntStateOf(((System.currentTimeMillis() + DateFormatter.timezoneOffset) / 86400000).toInt())}
     val chosenDate = navController.currentBackStackEntry?.savedStateHandle?.get<Long?>("pickedDate")
 
     if (chosenDate != null && choosingDate){
-        displayedDateCurrentTimezone = chosenDate/86400
+        chosenDay = ((chosenDate + DateFormatter.timezoneOffset/1000)/ 86400).toInt()
         choosingDate = false
     }
+
     var changeDate by remember { mutableStateOf(false) }
 
     Box(
@@ -91,14 +92,14 @@ fun ListHabits(
                         if (changeDate) {
                             when {
                                 x > 0 -> {
-                                    if (displayedDateCurrentTimezone > 19723) { // 01.01.2024 00:00 AM
-                                        displayedDateCurrentTimezone -= 1
+                                    if (chosenDay > 19723){ // 01.01.2024 00:00 AM UTC
+                                        chosenDay -= 1
                                         changeDate = false
                                     }
                                 }
 
                                 x < 0 -> {
-                                    displayedDateCurrentTimezone += 1
+                                    chosenDay += 1
                                     changeDate = false
                                 }
                             }
@@ -110,7 +111,7 @@ fun ListHabits(
                 )
             }
     ){
-        habitsViewModel.UpdateListUi(DateFormatter.changeTimezone(displayedDateCurrentTimezone * 86400, true)/1000) // UTC from database
+        habitsViewModel.UpdateListUi(chosenDay) // UTC from database
         val habitsList = listHabitsUiState.habits
 
         Column(
@@ -131,15 +132,15 @@ fun ListHabits(
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
-                                if (displayedDateCurrentTimezone > 19723) { // 01.01.2024 00:00 AM
-                                    displayedDateCurrentTimezone -= 1
+                                if (chosenDay > 19723) { // 01.01.2024 00:00 AM UTC
+                                    chosenDay -= 1
                                 }
                             }) {
                         Icon(Icons.Default.KeyboardArrowLeft, "Left")
                     }
 
                     Text(
-                        stringResource(R.string.date) +": ${DateFormatter.sdf.format(displayedDateCurrentTimezone * 86400000).substring(0, 10)}",
+                        stringResource(R.string.date) +": ${DateFormatter.sdf.format(chosenDay.toLong() * 86400000).substring(0,10)}",
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .weight(3f)
@@ -159,7 +160,7 @@ fun ListHabits(
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
-                                displayedDateCurrentTimezone += 1
+                                chosenDay += 1
                             }
                     ) {
                         Icon(Icons.Default.KeyboardArrowRight, "Right")
@@ -170,7 +171,7 @@ fun ListHabits(
             Spacer(modifier.padding(10.dp))
 
             habitsList.forEach { value ->
-                HabitElement(value, navController, habitsViewModel, displayedDateCurrentTimezone * 86400)
+                HabitElement(value, navController, habitsViewModel, chosenDay)
             }
         }
         NewHabitNavigation(navController, stringResource(R.string.newValue))
@@ -185,7 +186,7 @@ fun HabitElement(
     habit: HabitUiState,
     navController: NavController,
     habitsViewModel: ListHabitsViewModel,
-    date: Long,
+    date: Int,
     modifier: Modifier = Modifier
 ){
     var selection by remember{
@@ -262,9 +263,9 @@ fun HabitElement(
                         .clickable {
                             coroutineScope.launch {
                                 if (habit.done) {
-                                    habitsViewModel.changeTickState(habit.id!!, date, true)
+                                    habitsViewModel.changeTickState(habit.id!!, date, habit.startEpochTime!!, true)
                                 } else {
-                                    habitsViewModel.changeTickState(habit.id!!, date, false)
+                                    habitsViewModel.changeTickState(habit.id!!, date, habit.startEpochTime!!,false)
                                 }
                             }
                         }
