@@ -140,6 +140,11 @@ fun ListHabits(
                             .clickable {
                                 if (chosenDay > 19723) { // 01.01.2024 00:00 AM UTC
                                     chosenDay -= 1
+                                    coroutineScope.launch {
+                                        changeDate = false
+                                        delay(200)
+                                        changeDate = true
+                                    }
                                 }
                             }) {
                         Icon(Icons.Default.KeyboardArrowLeft, "Left")
@@ -175,6 +180,11 @@ fun ListHabits(
                             .weight(1f)
                             .clickable {
                                 chosenDay += 1
+                                coroutineScope.launch {
+                                    changeDate = false
+                                    delay(200)
+                                    changeDate = true
+                                }
                             }
                     ) {
                         Icon(Icons.Default.KeyboardArrowRight, "Right")
