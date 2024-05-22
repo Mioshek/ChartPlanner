@@ -3,6 +3,10 @@ package com.mioshek.chartplanner.views.charts
 import LineChart
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -30,11 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.ui.AppViewModelProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition", "MutableCollectionMutableState")
@@ -46,26 +50,9 @@ fun DrawGraph(
     var currentHorizontalDrag by remember { mutableStateOf(Pair(0.dp, 0.dp)) }
     val coroutineScope = rememberCoroutineScope()
     val chartUiState by chartViewModel.chartUiState.collectAsState()
-    var refresh by remember{ mutableStateOf(true)}
-    if (refresh){
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = modifier
-                .fillMaxSize()
-                .zIndex(1f)
-        ){
-//            CircularProgressIndicator(
-//                modifier = modifier.size(50.dp),
-//                color = Color.White
-//            )
-        }
+    var dragEnded by remember { mutableStateOf(true)}
+    var slideLeft by remember { mutableStateOf(true)}
 
-        coroutineScope.launch {
-            refresh = chartViewModel.calculateValuesForChart()
-        }
-    }
-
-    var dragEnded by remember { mutableStateOf(false)}
     Box(
         Modifier.pointerInput(Unit){
             detectDragGestures (
@@ -73,45 +60,29 @@ fun DrawGraph(
                         change, dragAmount ->
                     change.consume()
 
-                    val (x, y) = dragAmount
+                    val (x, _) = dragAmount
                     when {
                         x > 0 -> {
-                            var chartDrag = if (x < 10) x else 10F
-                            if (chartDrag + currentHorizontalDrag.second.value > 10){
-                                chartDrag = 0F
-                            }
-                            currentHorizontalDrag = Pair(
-                                currentHorizontalDrag.first - chartDrag.toDp(),
-                                currentHorizontalDrag.second + chartDrag.toDp()
-                            )
-                            if (dragEnded){
+                            if (dragEnded && chartUiState.firstDay - 1 > 19723){
                                 chartViewModel.changeDays(false)
+                                slideLeft = true
+                                dragEnded = false
                             }
-                            dragEnded = false
                         }
                         x < 0 -> {
-                            var chartDrag = if (-x < 20) -x else 20F
-                            if (chartDrag + currentHorizontalDrag.first.value > 20){
-                                chartDrag = 0F
-                            }
-                            currentHorizontalDrag = Pair(
-                                currentHorizontalDrag.first + chartDrag.toDp(),
-                                currentHorizontalDrag.second - chartDrag.toDp()
-                            )
                             if(dragEnded){
                                 chartViewModel.changeDays(true)
+                                slideLeft = false
                             }
                             dragEnded = false
                         }
-                    }
-                    when {
-                        y > 0 -> { Log.d("Direction", "Down") }
-                        y < 0 -> { Log.d("Direction", "Up") }
                     }
                 },
                 onDragEnd = {
-                    currentHorizontalDrag = Pair(0.dp, 0.dp)
-                    dragEnded = true
+                    coroutineScope.launch {
+                        delay(100)
+                        dragEnded = true
+                    }
                 }
             )
         }
@@ -184,37 +155,53 @@ fun DrawGraph(
                 }
                 LaunchedEffect(key1=null){
                     try {
-                        showCircles = chartViewModel.getSettingValue("ShowCirclesAsGraphPoints").toBoolean()
+                        showCircles = chartViewModel.getSettingValue(R.string.show_circles_on_graph).toBoolean()
                     }
                     catch (e: Exception){
                         Log.d("Setting Error", e.toString())
                     }
                 }
 
-                LineChart(
-                    yValues= chartUiState.yValues,
-                    appearance = ChartSettings(
-                        chartDescription = ChartDescription(
-                            chartName = "${DateFormatter.sdf.format(chartUiState.firstDay.toLong() * 86400000L).substring(0,10)} - ${DateFormatter.sdf.format((chartUiState.firstDay.toLong() + chartUiState.numberOfDays)*86400000).substring(0,10)}",
-                            chartNameSize = 20.dp,
-                            chartNameColor =  MaterialTheme.colorScheme.onSurface,
-                            xAxisName = stringResource(R.string.days),
-                            yAxisName= stringResource(R.string.percentage),
-                            axesNamesSize = 10.dp,
-                            axesNamesColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        lineColor = MaterialTheme.colorScheme.secondary,
-                        graphAxisColor = MaterialTheme.colorScheme.secondary,
-                        lineThickness = 1.dp,
-                        hasColorAreaUnderChart = true,
-                        colorAreaUnderChart = Pair(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
-                        isCircleVisible = showCircles,
-                        circleColor = MaterialTheme.colorScheme.primary,
-                        backgroundColor = MaterialTheme.colorScheme.surface,
-                        axisFontSize = 40,
-                        axisFontColor = MaterialTheme.colorScheme.onBackground
+                AnimatedVisibility(
+                    visible = dragEnded,
+                    enter = slideInHorizontally(animationSpec = keyframes {
+                        this.durationMillis = 50
+                    }
+                    ) { fullWidth ->
+                        if (slideLeft) -fullWidth / 3 else fullWidth / 3
+                    },
+                    exit = slideOutHorizontally(animationSpec = keyframes {
+                        this.durationMillis = 50
+                    }
+                    ) { fullWidth ->
+                        if (slideLeft) fullWidth / 3 else -fullWidth / 3
+                    },
+                ) {
+                    LineChart(
+                        yValues= chartUiState.yValues,
+                        appearance = ChartSettings(
+                            chartDescription = ChartDescription(
+                                chartName = "${DateFormatter.sdf.format(chartUiState.firstDay.toLong() * 86400000L).substring(0,10)} - ${DateFormatter.sdf.format((chartUiState.firstDay.toLong() + chartUiState.numberOfDays)*86400000).substring(0,10)}",
+                                chartNameSize = 20.dp,
+                                chartNameColor =  MaterialTheme.colorScheme.onSurface,
+                                xAxisName = stringResource(R.string.days),
+                                yAxisName= stringResource(R.string.percentage),
+                                axesNamesSize = 10.dp,
+                                axesNamesColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            lineColor = MaterialTheme.colorScheme.secondary,
+                            graphAxisColor = MaterialTheme.colorScheme.secondary,
+                            lineThickness = 1.dp,
+                            hasColorAreaUnderChart = true,
+                            colorAreaUnderChart = Pair(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
+                            isCircleVisible = showCircles,
+                            circleColor = MaterialTheme.colorScheme.primary,
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            axisFontSize = 40,
+                            axisFontColor = MaterialTheme.colorScheme.onBackground
+                        )
                     )
-                )
+                }
             }
         }
     }

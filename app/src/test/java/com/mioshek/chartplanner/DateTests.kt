@@ -1,6 +1,6 @@
 package com.mioshek.chartplanner
 
-class DateTests {
+//class DateTests {
 //    @Test
 //    fun transformCESTtoUTCTest(){
 //        //08.05.2024 12:00 Timezone GTM + 2
@@ -16,4 +16,4 @@ class DateTests {
 //        val result = 1715464800
 //        Assert.assertEquals(testDate, result)
 //    }
-}
+//}

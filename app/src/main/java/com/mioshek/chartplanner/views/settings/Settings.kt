@@ -43,13 +43,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.formats.Languages
 import com.mioshek.chartplanner.data.models.settings.Setting
 import com.mioshek.chartplanner.ui.AppViewModelProvider
+import java.util.Locale
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Settings(
     navController: NavController,
@@ -64,7 +63,7 @@ fun Settings(
     )
 
     val scrollState = rememberScrollState(0)
-    LaunchedEffect(key1 = "test") {
+    LaunchedEffect(Unit) {
         settingsViewModel.loadAllSettings()
     }
 
@@ -75,7 +74,9 @@ fun Settings(
             .verticalScroll(scrollState)
     ) {
         for (setting in settingsUiState.settings){
-            SettingContainer(setting, settingsViewModel)
+            if(setting.visible == 1){
+                SettingContainer(setting, settingsViewModel)
+            }
         }
 
         Row (
@@ -118,7 +119,6 @@ fun Settings(
 }
 
 
-
 @Composable
 fun SettingContainer(
     setting: Setting,
@@ -141,7 +141,7 @@ fun SettingContainer(
         ) {
 
             Text(
-                text = setting.settingName,
+                text = stringResource(setting.settingName),
                 modifier = modifier.weight(1f)
             )
 
@@ -187,10 +187,12 @@ fun SettingContainer(
 
                         for ((index, language) in languages.withIndex()){
                             DropdownMenuItem(
-                                text = { Text(text = language, fontSize = 25.sp)},
+                                text = { Text(text = language.first, fontSize = 25.sp)},
                                 onClick = {
                                     expanded = !expanded
-                                        chosenLanguage = index
+                                    chosenLanguage = index
+                                    Locale.setDefault(Locale("pl"))
+                                    settingsViewModel.updateState(setting, language.first)
                                     },
                                 modifier = modifier.fillMaxSize()
                             )
@@ -205,7 +207,7 @@ fun SettingContainer(
                     }
 
                     Text(
-                        text = Languages.languages[chosenLanguage],
+                        text = setting.value,
                         modifier = modifier.weight(0.5f)
                     )
 

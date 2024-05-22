@@ -2,9 +2,12 @@ package com.mioshek.chartplanner.views.habits
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -21,7 +24,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -73,13 +75,13 @@ fun ListHabits(
     val listHabitsUiState by habitsViewModel.habitUiState.collectAsState()
     var chosenDay by remember { mutableIntStateOf(((System.currentTimeMillis() + DateFormatter.timezoneOffset) / 86400000).toInt())}
     val chosenDate = navController.currentBackStackEntry?.savedStateHandle?.get<Long?>("pickedDate")
+    var changeDate by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
 
     if (chosenDate != null && choosingDate){
         chosenDay = ((chosenDate + DateFormatter.timezoneOffset/1000)/ 86400).toInt()
         choosingDate = false
     }
-
-    var changeDate by remember { mutableStateOf(false) }
 
     Box(
         modifier
@@ -92,7 +94,7 @@ fun ListHabits(
                         if (changeDate) {
                             when {
                                 x > 0 -> {
-                                    if (chosenDay > 19723){ // 01.01.2024 00:00 AM UTC
+                                    if (chosenDay > 19723) { // 01.01.2024 00:00 AM UTC
                                         chosenDay -= 1
                                         changeDate = false
                                     }
@@ -106,7 +108,10 @@ fun ListHabits(
                         }
                     },
                     onDragEnd = {
-                        changeDate = true
+                        coroutineScope.launch {
+                            delay(200)
+                            changeDate = true
+                        }
                     }
                 )
             }
@@ -122,10 +127,11 @@ fun ListHabits(
         ) {
             Card(
                 elevation = CardDefaults.cardElevation(1.dp),
-                modifier = modifier.fillMaxWidth()
+                modifier = modifier.fillMaxWidth(),
             ) {
                 Row(
-                    modifier = Modifier.padding(5.dp)
+                    modifier = Modifier.padding(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         contentAlignment = Alignment.CenterStart,
@@ -139,22 +145,30 @@ fun ListHabits(
                         Icon(Icons.Default.KeyboardArrowLeft, "Left")
                     }
 
-                    Text(
-                        stringResource(R.string.date) +": ${DateFormatter.sdf.format(chosenDay.toLong() * 86400000).substring(0,10)}",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .weight(3f)
-                            .clickable {
-                                choosingDate = false
-                                navController.navigate("habits/calendar")
-                            }
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.onBackground.copy(0.5f),
-                                shape = RoundedCornerShape(8.dp) // Adjust the corner radius as needed
-                            )
-                            .padding(5.dp)
-                    )
+                    AnimatedVisibility(
+                        visible = changeDate,
+                        enter = scaleIn(animationSpec = keyframes {
+                            this.durationMillis = 150
+                        },
+                            0.8f
+                        ),
+                        exit = scaleOut(animationSpec = keyframes {
+                            this.durationMillis = 150
+                        },
+                            0.8f),
+                    ) {
+                        Text(
+                            stringResource(R.string.date) +": ${DateFormatter.sdf.format(chosenDay.toLong() * 86400000).substring(0,10)}",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .weight(3f)
+                                .clickable {
+                                    choosingDate = false
+                                    navController.navigate("habits/calendar")
+                                }
+                                .padding(2.dp)
+                        )
+                    }
 
                     Box(contentAlignment = Alignment.CenterEnd,
                         modifier = Modifier
@@ -171,7 +185,23 @@ fun ListHabits(
             Spacer(modifier.padding(10.dp))
 
             habitsList.forEach { value ->
-                HabitElement(value, navController, habitsViewModel, chosenDay)
+                AnimatedVisibility(
+                    visible = changeDate,
+                    enter = scaleIn(animationSpec = keyframes {
+                        this.durationMillis = 150
+                    },
+                        0.5f
+                    ),
+
+                    exit = scaleOut(animationSpec = keyframes {
+                        this.durationMillis = 150
+                    }
+                    ,
+                        0.5f
+                    ),
+                ) {
+                    HabitElement(value, navController, habitsViewModel, chosenDay)
+                }
             }
         }
         NewHabitNavigation(navController, stringResource(R.string.newValue))
@@ -263,9 +293,19 @@ fun HabitElement(
                         .clickable {
                             coroutineScope.launch {
                                 if (habit.done) {
-                                    habitsViewModel.changeTickState(habit.id!!, date, habit.startEpochTime!!, true)
+                                    habitsViewModel.changeTickState(
+                                        habit.id!!,
+                                        date,
+                                        habit.startEpochTime!!,
+                                        true
+                                    )
                                 } else {
-                                    habitsViewModel.changeTickState(habit.id!!, date, habit.startEpochTime!!,false)
+                                    habitsViewModel.changeTickState(
+                                        habit.id!!,
+                                        date,
+                                        habit.startEpochTime!!,
+                                        false
+                                    )
                                 }
                             }
                         }
@@ -422,6 +462,7 @@ fun DeleteSelectedPopup(
         }
     }
 }
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, device = "id:pixel_6_pro")

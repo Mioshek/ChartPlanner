@@ -11,8 +11,8 @@ package com.mioshek.chartplanner
 // Last 12 months or yearly options [Done]
 // Add to settings option to enable completing habit each day instead of current day [Done]
 // Flag in options for caching
-// Y axis should be signed only with values of points
-// Option: Display as percentage or as scalar
+// Y axis should be signed only with values of points [Not sure if should do]
+// Option: Display as percentage or as scalar [Not sure if should do]
 // too big for some devices [Only tested on 1080 x 2400, 720 x 1440 and 3040 x 1440]
 // send query only when modified / needed
 // Fix timezones [Done]

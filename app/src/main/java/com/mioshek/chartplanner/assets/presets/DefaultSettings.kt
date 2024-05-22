@@ -2,6 +2,7 @@ package com.mioshek.chartplanner.assets.presets
 
 import android.util.Log
 import com.mioshek.chartplanner.MainActivity
+import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.data.models.AppDatabase
 
 class DefaultSettings {
@@ -12,7 +13,7 @@ class DefaultSettings {
             try {
                 // Init Language
                 settingsDao.createIfNotPresent(
-                    "InitLanguage",
+                    R.string.language,
                     "EN",
                     3,
                     1
@@ -20,7 +21,7 @@ class DefaultSettings {
 
                 // Init Date
                 settingsDao.createIfNotPresent(
-                    "InitDate",
+                    R.string.date,
                     "${System.currentTimeMillis()/1000}",
                     0,
                     0
@@ -28,21 +29,21 @@ class DefaultSettings {
 
                 //Init Font Size
                 settingsDao.createIfNotPresent(
-                    "InitFontSize",
+                    R.string.font_size,
                     "20",
                     1,
                     1
                 )
 
                 settingsDao.createIfNotPresent(
-                    "InitShowCirclesAsGraphPoints",
+                    R.string.show_circles_on_graph,
                     "True",
                     2,
                     1
                 )
 
                 settingsDao.createIfNotPresent(
-                    "InitAllowCompletingHabitsAnytime",
+                    R.string.allow_completing_habits_anytime,
                     "false",
                     2,
                     1

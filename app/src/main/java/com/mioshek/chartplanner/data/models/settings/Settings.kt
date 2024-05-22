@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class Setting(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val settingName: String,
+    val settingName: Int,
     val value: String,
     val displayType: Int, // 0 No Display | 1 Slider | 2 Switch | 3 Dropdown List
     val visible: Int

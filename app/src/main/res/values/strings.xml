@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Chart Planner</string>
+    <string name="app_name">ChartPlanner</string>
     <string name="week">Week</string>
     <string name="month">Month</string>
     <string name="year">Year</string>
@@ -28,4 +28,5 @@
     <string name="_import">Import</string>
     <string name="delete">Delete</string>
     <string name="confirm">Confirm</string>
+    <string name="title_activity_test">test</string>
 </resources>

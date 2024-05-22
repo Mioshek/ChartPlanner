@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChartPlanner</string>
+    <string name="week">Semana</string>
+    <string name="month">Mes</string>
+    <string name="year">Año</string>
+    <string name="percentage">Porcentaje</string>
+    <string name="chart">Gráfico</string>
+    <string name="habits">Hábitos</string>
+    <string name="settings">Configuración</string>
+    <string name="date">Fecha</string>
+    <string name="newValue">Nuevo</string>
+    <string name="name">Nombre</string>
+    <string name="starting_date">Fecha de Inicio</string>
+    <string name="chose_day_interval">Elegir Intervalo de Días</string>
+    <string name="dont_repeat">No Repetir</string>
+    <string name="repeat_everyday">Repetir Todos los Días</string>
+    <string name="repeat_every">Repetir Cada</string>
+    <string name="days">Días</string>
+    <string name="description">Descripción</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">OK</string>
+    <string name="save">Guardar</string>
+    <string name="language">Idioma</string>
+    <string name="font_size">Tamaño de Fuente</string>
+    <string name="show_circles_on_graph">Mostrar Círculos en el Gráfico</string>
+    <string name="allow_completing_habits_anytime">Permitir Completar Hábitos en Cualquier Momento</string>
+    <string name="export">Exportar</string>
+    <string name="_import">Importar</string>
+    <string name="delete">Eliminar</string>
+    <string name="confirm">Confirmar</string>
+</resources>

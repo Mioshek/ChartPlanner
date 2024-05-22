@@ -50,7 +50,7 @@ class SettingsViewModel(
         )
 
         val newSettings = _settingsUiState.value.settings.toMutableList()
-        newSettings[updatedSetting.id - 2] = updatedSetting
+        newSettings[updatedSetting.id - 1] = updatedSetting
 
         _settingsUiState.update {currentState ->
             currentState.copy(

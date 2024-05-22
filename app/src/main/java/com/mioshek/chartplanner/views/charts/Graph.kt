@@ -25,7 +25,6 @@ import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import com.mioshek.chartplanner.views.charts.ChartDescription
 import com.mioshek.chartplanner.views.charts.ChartSettings
 
-
 @Composable
 fun LineChart(
     modifier: Modifier = Modifier,
@@ -33,7 +32,7 @@ fun LineChart(
     padding: Dp = 16.dp,
     appearance: ChartSettings
 ) {
-    val xValues = (1..yValues.size).toList()
+    val xValues = (yValues.indices).toList()
     Box(
         modifier = modifier
             .background(appearance.backgroundColor)
@@ -43,6 +42,9 @@ fun LineChart(
             modifier = modifier
                 .fillMaxSize()
         ) {
+
+            drawAxes(xValues, yValues, appearance.graphAxisColor, appearance.axisFontColor, appearance.axisFontSize.toDp(), appearance.lineThickness)
+            drawChartDescription(appearance.chartDescription)
             if (yValues.isNotEmpty()){
                 drawAreaUnderChart(xValues, yValues, appearance.colorAreaUnderChart)
                 drawLineChart(xValues, yValues, appearance.lineColor, appearance.lineThickness.toPx())
@@ -50,8 +52,6 @@ fun LineChart(
                     drawPoints(xValues, yValues, appearance.circleColor, 2.dp)
                 }
             }
-            drawAxes(xValues, yValues, appearance.graphAxisColor, appearance.axisFontColor, appearance.axisFontSize.toDp(), appearance.lineThickness)
-            drawChartDescription(appearance.chartDescription)
         }
     }
 }
@@ -137,16 +137,21 @@ private fun DrawScope.drawAxes(
     )
 
     // Draw x-axis labels
-    if (yValues.size > 0){
+    if (yValues.isNotEmpty()){
         val entryWidth = axisLabelSize + 80.dp
-        var partitionsX = size.width / entryWidth.value
-        if (partitionsX > xValues.size) {partitionsX = xValues.size.toFloat()
+        var partitionsX = (size.width / entryWidth.value).toInt()
+
+        if (partitionsX > xValues.size) {
+            partitionsX = xValues.size
         }
-        val xGap = size.width / partitionsX
-        val xNumberGap = yValues.size / partitionsX
-        var j = 0
-        var x = 0f
-        while (j < partitionsX){
+        val labelMultiplier = yValues.size / (partitionsX -1).toFloat()
+        val xGap = size.width / yValues.size
+        var x: Float
+        var xLabel = 1f
+
+        while (xLabel < yValues.size + labelMultiplier){
+            x = (xLabel -1 ) * xGap
+
             drawLine(
                 start = Offset(x, size.height),
                 end = Offset(x, size.height + 10),
@@ -155,7 +160,7 @@ private fun DrawScope.drawAxes(
             )
 
             drawContext.canvas.nativeCanvas.drawText(
-                "${(j * xNumberGap).toInt()}",
+                if(xLabel.toInt() > yValues.size) "${xLabel.toInt() -1 }" else "${xLabel.toInt()}",
                 x,
                 size.height + axisLabelSize.toPx() + 4f,
                 Paint().apply {
@@ -164,8 +169,7 @@ private fun DrawScope.drawAxes(
                     textSize = axisLabelSize.toPx()
                 }
             )
-            x += xGap
-            j +=1
+            xLabel += labelMultiplier
         }
 
         // Draw y-axis labels
@@ -238,9 +242,9 @@ private fun DrawScope.drawLineChart(
         val y = size.height - (yValues[i] - minValueY) * yScale
 
         if (i == 0) {
-            path.moveTo(x+10, y)
+            path.moveTo(x, y)
         } else {
-            path.lineTo(x+10, y)
+            path.lineTo(x, y)
         }
     }
 
@@ -276,7 +280,7 @@ private fun DrawScope.drawPoints(
             drawCircle(
                 color = pointColor,
                 radius = pointRadius.toPx(),
-                center = Offset(x+10, y)
+                center = Offset(x, y)
             )
         }
     }
@@ -309,9 +313,9 @@ private fun DrawScope.drawAreaUnderChart(
         val y = size.height - (yValues[i] - minValueY) * yScale
 
         if (i == 0) {
-            path.moveTo(x+10, y)
+            path.moveTo(x, y)
         } else {
-            path.lineTo(x+10, y)
+            path.lineTo(x, y)
         }
     }
 

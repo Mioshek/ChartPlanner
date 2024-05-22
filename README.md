@@ -7,7 +7,7 @@
     <li><b>Analyze Your Performance:</b> Gain insights into your habit patterns with statistics.</li>
     <li><b>Boost Your Motivation:</b> Leverage psychological principles that show visualizing progress can significantly enhance goal achievement. Seeing your progress on a chart reinforces your commitment and encourages you to keep moving forward.</li>
 </ul>
-<h2>How does the app look?</h2>
+<br>
 <div style="display:flex;">
   <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_ListHabits.jpg" width="24%">
   <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Chart.jpg" width="24%">

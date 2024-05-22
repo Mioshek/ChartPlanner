@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.Completed
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
@@ -104,7 +105,7 @@ class ListHabitsViewModel(
     }
 
     suspend fun changeTickState(hid: Int, date: Int, time: Int, previousState: Boolean){
-        val completeAnytime = settingsRepository.getSetting("InitAllowCompletingHabitsAnytime").first().value.toBoolean()
+        val completeAnytime = settingsRepository.getSetting(R.string.allow_completing_habits_anytime).first().value.toBoolean()
         val today = DateFormatter.currentDate
         if (completeAnytime || date == today){
 

@@ -1,14 +1,10 @@
 package com.mioshek.chartplanner.views.charts
 
-import android.util.Log
-import androidx.annotation.InspectableProperty
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import com.mioshek.chartplanner.data.models.settings.SettingsRepository
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +12,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.time.Instant
 import java.time.LocalDate
 
 data class ChartUiState(
@@ -29,7 +24,7 @@ data class ChartUiState(
 enum class CustomTimestamp(val range: Int) {
     WEEK(7),
     MONTH(30),
-    YEAR(355)
+    YEAR(365)
 }
 
 fun CustomTimestamp.getRange(): Int{
@@ -53,6 +48,7 @@ class ChartViewModel(
                 numberOfDays = timestamp.range
             )
         }
+
         runBlocking {
             launch {
                 calculateValuesForChart()
@@ -81,11 +77,9 @@ class ChartViewModel(
         }
     }
 
-    suspend fun calculateValuesForChart(): Boolean {
+    private suspend fun calculateValuesForChart(): Boolean {
         val start = _chartUiState.value.firstDay
-//        val testStart = System.currentTimeMillis()
         val yValues = completedRepository.getChartStatistics(start,_chartUiState.value.numberOfDays).toMutableList()
-//        Log.d("Time taken", "${(System.currentTimeMillis() - testStart)/1000f} s")
         _chartUiState.update { currentState ->
             currentState.copy(
                 timestamp = currentState.timestamp,
@@ -96,7 +90,7 @@ class ChartViewModel(
         return false
     }
 
-    suspend fun getSettingValue(name: String): String {
+    suspend fun getSettingValue(name: Int): String {
         return settingsRepository.getSetting(name).first().value
     }
 }
