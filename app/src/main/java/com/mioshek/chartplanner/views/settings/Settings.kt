@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -139,7 +140,6 @@ fun SettingContainer(
                 .padding(10.dp)
                 .clickable { expanded = !expanded }
         ) {
-
             Text(
                 text = stringResource(setting.settingName),
                 modifier = modifier.weight(1f)
@@ -171,7 +171,7 @@ fun SettingContainer(
                 }
 
                 3 ->{
-                    var chosenLanguage by remember{ mutableStateOf(0)} // EN
+                    var chosenLanguage by remember{ mutableIntStateOf(0) } // EN
                     val screenHeight = LocalDensity.current.density * LocalView.current.height
                     val scrollState = rememberScrollState(0)
                     DropdownMenu(

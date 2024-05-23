@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ChartPlanner</string>
+    <string name="app_name">ChartPlanneur</string>
     <string name="week">Semana</string>
     <string name="month">Mes</string>
     <string name="year">Año</string>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,13 @@ fun DrawGraph(
     val chartUiState by chartViewModel.chartUiState.collectAsState()
     var dragEnded by remember { mutableStateOf(true)}
     var slideLeft by remember { mutableStateOf(true)}
+    var initialized by remember{ mutableStateOf(false)}
+    if(!initialized){
+        coroutineScope.launch {
+            chartViewModel.calculateValuesForChart()
+        }
+        initialized = false
+    }
 
     Box(
         Modifier.pointerInput(Unit){
@@ -79,6 +88,9 @@ fun DrawGraph(
                     }
                 },
                 onDragEnd = {
+                    if (chartUiState.numberOfDays !in CustomTimestamp.values().map { it.range }){
+                        chartViewModel.changeTimestamp(CustomTimestamp.YEAR)
+                    }
                     coroutineScope.launch {
                         delay(100)
                         dragEnded = true
@@ -101,9 +113,9 @@ fun DrawGraph(
                     .fillMaxWidth()
             ) {
                 for (timestamp in CustomTimestamp.values()){
-                    var backgroundColor = MaterialTheme.colorScheme.surface
+                    var backgroundColor = MaterialTheme.colorScheme.tertiary.copy(0.4f)
                     if (selected == timestamp){
-                        backgroundColor = MaterialTheme.colorScheme.background
+                        backgroundColor = MaterialTheme.colorScheme.tertiary
                     }
                     var name = ""
                     when(timestamp.name){
@@ -114,6 +126,7 @@ fun DrawGraph(
                         "YEAR" -> {name = stringResource(R.string.year)
                         }
                     }
+                    Spacer(modifier = Modifier.padding(5.dp))
                     Box(
                         modifier = modifier
                             .weight(1f)
@@ -127,7 +140,8 @@ fun DrawGraph(
                         Text(
                             text = name,
                             modifier = modifier
-                                .align(Alignment.Center)
+                                .align(Alignment.Center),
+                            color = MaterialTheme.colorScheme.onTertiary
                         )
                     }
                 }
@@ -183,20 +197,20 @@ fun DrawGraph(
                             chartDescription = ChartDescription(
                                 chartName = "${DateFormatter.sdf.format(chartUiState.firstDay.toLong() * 86400000L).substring(0,10)} - ${DateFormatter.sdf.format((chartUiState.firstDay.toLong() + chartUiState.numberOfDays)*86400000).substring(0,10)}",
                                 chartNameSize = 20.dp,
-                                chartNameColor =  MaterialTheme.colorScheme.onSurface,
+                                chartNameColor =  MaterialTheme.colorScheme.onBackground,
                                 xAxisName = stringResource(R.string.days),
                                 yAxisName= stringResource(R.string.percentage),
                                 axesNamesSize = 10.dp,
-                                axesNamesColor = MaterialTheme.colorScheme.onSurface
+                                axesNamesColor = MaterialTheme.colorScheme.secondary
                             ),
-                            lineColor = MaterialTheme.colorScheme.secondary,
-                            graphAxisColor = MaterialTheme.colorScheme.secondary,
+                            lineColor = MaterialTheme.colorScheme.primary,
+                            graphAxisColor = MaterialTheme.colorScheme.onBackground,
                             lineThickness = 1.dp,
                             hasColorAreaUnderChart = true,
-                            colorAreaUnderChart = Pair(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
+                            colorAreaUnderChart = Pair(MaterialTheme.colorScheme.primary.copy(0.8f), Color.Transparent),
                             isCircleVisible = showCircles,
-                            circleColor = MaterialTheme.colorScheme.primary,
-                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            circleColor = MaterialTheme.colorScheme.tertiary,
+                            backgroundColor = Color.Transparent,
                             axisFontSize = 40,
                             axisFontColor = MaterialTheme.colorScheme.onBackground
                         )
@@ -206,13 +220,3 @@ fun DrawGraph(
         }
     }
 }
-
-
-//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//fun BottomNavigationBarPreview() {
-//    ChartPlannerTheme {
-//        DrawGraph()
-//    }
-//}

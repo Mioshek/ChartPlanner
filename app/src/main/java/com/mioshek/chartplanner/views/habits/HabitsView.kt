@@ -1,7 +1,5 @@
 package com.mioshek.chartplanner.views.habits
 
-import android.annotation.SuppressLint
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.scaleIn
@@ -53,14 +51,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mioshek.chartplanner.R
 import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.ui.AppViewModelProvider
-import com.mioshek.chartplanner.ui.theme.ChartPlannerTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -470,15 +466,5 @@ fun DeleteSelectedPopup(
                 }
             )
         }
-    }
-}
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, device = "id:pixel_6_pro")
-@Composable
-fun BottomNavigationBarPreview() {
-    ChartPlannerTheme {
-//        NewHabitNavigation()
     }
 }

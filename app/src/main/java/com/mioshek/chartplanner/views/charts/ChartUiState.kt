@@ -2,6 +2,7 @@ package com.mioshek.chartplanner.views.charts
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import com.mioshek.chartplanner.assets.formats.DateFormatter
 import com.mioshek.chartplanner.data.models.habits.CompletedRepository
 import com.mioshek.chartplanner.data.models.habits.HabitsRepository
 import com.mioshek.chartplanner.data.models.settings.SettingsRepository
@@ -16,8 +17,9 @@ import java.time.LocalDate
 
 data class ChartUiState(
     val timestamp: CustomTimestamp = CustomTimestamp.MONTH,
-    val numberOfDays: Int = LocalDate.now().lengthOfYear(),
-    val firstDay: Int = (System.currentTimeMillis()/ 86400000).toInt(), // 01.01.2024
+    val firstDay: Int = if (((System.currentTimeMillis() + DateFormatter.timezoneOffset)/ 86400000).toInt() -
+        LocalDate.now().lengthOfYear() <= 19723) 19723 else (System.currentTimeMillis() + DateFormatter.timezoneOffset).toInt(),
+    val numberOfDays: Int = ((System.currentTimeMillis() + DateFormatter.timezoneOffset)/ 86400000).toInt() - firstDay,
     val yValues: MutableList<Float> = mutableListOf(),
 )
 
@@ -77,7 +79,7 @@ class ChartViewModel(
         }
     }
 
-    private suspend fun calculateValuesForChart(): Boolean {
+    suspend fun calculateValuesForChart(): Boolean {
         val start = _chartUiState.value.firstDay
         val yValues = completedRepository.getChartStatistics(start,_chartUiState.value.numberOfDays).toMutableList()
         _chartUiState.update { currentState ->

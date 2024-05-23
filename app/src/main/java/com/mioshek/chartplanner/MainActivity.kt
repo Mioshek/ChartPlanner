@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
 
         if (Settings.Secure.getInt(this.contentResolver, "navigation_mode", 0) == 2){
             enableEdgeToEdge()
-            WindowCompat.getInsetsController(window, window.decorView)?.run {
+            WindowCompat.getInsetsController(window, window.decorView).run {
                 hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
                 systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }

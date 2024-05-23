@@ -16,7 +16,8 @@ package com.mioshek.chartplanner
 // too big for some devices [Only tested on 1080 x 2400, 720 x 1440 and 3040 x 1440]
 // send query only when modified / needed
 // Fix timezones [Done]
-// Animation while changing days in List Habits view
+// Animation while changing days in List Habits view [Done]
 //Fix completing habits in different timezones. [Done]
 //Create abstract file for creating habits and modifying them
 // Think about saving date in database in Date 12/05/2024 and Hour 23:45 [Done]
+//Limit showing charts to current day

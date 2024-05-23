@@ -21,11 +21,6 @@
         android:theme="@style/Theme.ChartPlanner"
         tools:targetApi="31">
         <activity
-            android:name=".assets.animations.test"
-            android:exported="false"
-            android:label="@string/title_activity_test"
-            android:theme="@style/Theme.ChartPlanner" />
-        <activity
             android:name=".assets.filesaver.ExportImport"
             android:exported="false" />
         <activity
