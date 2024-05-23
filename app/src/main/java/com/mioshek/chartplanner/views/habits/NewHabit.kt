@@ -146,8 +146,7 @@ fun NewHabit(
             ){
 
                 OutlinedTextField(
-                    value = (habit.value.startEpochDate?.let { DateFormatter.sdf.format(it.toLong() * 86400000).substring(0,10) } ?: "") +
-                            "  ${habit.value.startEpochTime.let { it ?: 0 } / 60} : ${habit.value.startEpochTime.let { it ?: 0 } % 60}",
+                    value = calculateDateAndTime(habit),
                     onValueChange = {},
                     readOnly = true,
                     modifier = modifier
@@ -160,7 +159,7 @@ fun NewHabit(
 
                 CustomNumberPicker( // Hours
                     state = PickerState(),
-                    items = (0..23).map{it.toString()},
+                    items = (0..23).map{if (it > 9) it.toString() else "0$it"},
                     visibleItemsCount = 3,
                     dividerColor = Color.White,
                     startIndex = 0,
@@ -183,7 +182,7 @@ fun NewHabit(
 
                 CustomNumberPicker(
                     state = PickerState(),
-                    items = (0..59).map{it.toString()},
+                    items = (0..59).map{if (it > 9) it.toString() else "0$it"},
                     visibleItemsCount = 3,
                     dividerColor = Color.White,
                     startIndex = 0,
@@ -221,13 +220,7 @@ fun NewHabit(
                 }
             }
 
-            if (habitId == null){
-                NumberPicker(habitViewModel)
-            }
-            else if (habit.value.intervalDays != null){
-                NumberPicker(habitViewModel)
-            }
-
+            NumberPicker(habitViewModel)
 
             OutlinedTextField(
                 habit.value.description ?: "",
@@ -366,6 +359,25 @@ fun NavigationButtons(
             Text(stringResource(R.string.save))
         }
     }
+}
+
+/**
+ * @return date [String] in format DD/MM/YYYY 00:00 which represents chosen time
+ */
+fun calculateDateAndTime(habit:  State<HabitUiState>): String {
+    var date = habit.value.startEpochDate?.let { DateFormatter.sdf.format(it.toLong() * 86400000).substring(0,10) } ?: ""
+    val time: String
+    if (date != ""){
+        time = "  ${habit.value.startEpochTime.let {
+            val hours = (it ?: 0) /60
+            if (hours > 9) hours.toString() else "0$hours"
+        }} : ${habit.value.startEpochTime.let {
+            val minutes = (it ?: 0) % 60
+            if (minutes > 9) minutes.toString() else "0${minutes}"
+        }}"
+    }
+    else time = ""
+    return date + time
 }
 
 
