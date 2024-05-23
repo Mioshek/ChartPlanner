@@ -9,8 +9,8 @@
 </ul>
 <br>
 <div style="display:flex;">
-  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_ListHabits.jpg" width="24%">
-  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Chart.jpg" width="24%">
-  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_New.jpg" width="24%">
-  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/Screenshot_ChartPlanner_S10_Settings.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/img/Screenshot_ChartPlanner_S10_ListHabits.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/img/Screenshot_ChartPlanner_S10_Chart.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/img/Screenshot_ChartPlanner_S10_New.jpg" width="24%">
+  <img alt="App image" src="https://github.com/Mioshek/ChartPlanner/blob/main/img/Screenshot_ChartPlanner_S10_Settings.jpg" width="24%">
 </div>
